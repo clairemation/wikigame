@@ -12,9 +12,6 @@ export async function treasureList(){
 export async function exitList(){
 }
 
-export async function {
-}
-
 console.log("hi claire")
 
 await Wiki.afetchWikipediaArticle("Bassoon")

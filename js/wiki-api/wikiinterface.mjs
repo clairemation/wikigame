@@ -90,7 +90,8 @@ export function loadWikiArticle(name) {
 
 
 console.log('asdf');
-loadWikiArticle('hi');
+await afetchWikipediaArticle("Bassoon");
+dumpWikiArticle()
 //console.log(current_article.links)
 
 //module.exports = { loadWikiArticle,dumpWikiArticle };
