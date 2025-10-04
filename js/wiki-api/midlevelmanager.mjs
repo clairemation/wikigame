@@ -16,9 +16,9 @@ export async function getArticleProperties(articleUrl) {
 
   return {
     wordCount: 0,
-    links: [{label, url}, {label, url}, ... ],
-    headerImageUrl: ''
-    // any other properties?
+    links: [{label, url}, {label, url}],
+    headerImageUrl: 'blah.jpg',
+    citationsNeeded: [text1, text2],
   }
 }
 
