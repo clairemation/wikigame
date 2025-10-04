@@ -14,11 +14,12 @@ export async function exitList(){
 
 export async function getArticleProperties(articleName) {
 
+  await Wiki.afetchWikipediaArticle(articleName);
   return {
-    wordCount: 0,
-    links: [{label, url}, {label, url}],
+    wordCount: Wiki.getWordCount(),
+    links: Wiki.getLinks(),
     headerImageUrl: 'blah.jpg',
-    citationsNeeded: [text1, text2],
+    citationsNeeded: Wiki.getCitationsNeeded(),
   }
 }
 console.log("hi claire")

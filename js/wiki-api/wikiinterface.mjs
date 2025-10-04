@@ -2,9 +2,21 @@ const current_article = {
     li :[],
     cn :[],
     cl :[],
+    refs :[],
     wc : 0,
     title : "None"
 }
+
+function cisplit(s,t){
+    return s.split(new RegExp(RegExp.escape(t),"ig"))
+}
+
+export function getWordCount(){return current_article.wc;}
+
+export function getLinks(){return current_article.wc;}
+
+export function getCitationsNeeded(){return current_article.wc;}
+
 
 function reverse_trunc(str){
     const bstr=str
@@ -50,6 +62,22 @@ function get_wordcount(article){
     return countWords(article)
 }
 
+function get_cite_title(str){
+    try {
+	const a=str.split(new RegExp(RegExp.escape("title"),"ig"))[1].split("=")[1]
+	const b=a.split("|")[0]
+	return b;
+    }catch{
+	return "Dead Beef";
+    }
+}
+
+function get_references(article){
+    const spl=article.split(new RegExp(RegExp.escape("{{cite"),"ig")).slice(1)
+    const abl=cisplit(article,"{{cite")
+    return spl.map(get_cite_title);
+}
+
 export async function afetchWikipediaArticle(title) {
     const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title)
     const bdata= await b.json();
@@ -58,6 +86,7 @@ export async function afetchWikipediaArticle(title) {
     current_article.li=get_outgoing_links(bdata.source)
     current_article.wc=get_wordcount(bdata.source)
     current_article.title=title
+    current_article.refs=get_references(bdata.source)
     console.log(current_article.title);
     return "hi"
 }
@@ -82,6 +111,8 @@ export function dumpWikiArticle() {
     console.log(current_article.li)
     console.log(" wc:")
     console.log(current_article.wc)
+    console.log(" refs:")
+    console.log(current_article.refs)
 
 }
 export function loadWikiArticle(name) {
@@ -89,9 +120,9 @@ export function loadWikiArticle(name) {
 }
 
 
-console.log('asdf');
-await afetchWikipediaArticle("Bassoon");
-dumpWikiArticle()
+//console.log('asdf');
+//await afetchWikipediaArticle("Bassoon");
+//dumpWikiArticle()
 //console.log(current_article.links)
 
 //module.exports = { loadWikiArticle,dumpWikiArticle };
