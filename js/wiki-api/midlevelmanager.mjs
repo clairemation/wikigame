@@ -12,7 +12,7 @@ export async function treasureList(){
 export async function exitList(){
 }
 
-export async function getArticleProperties(articleUrl) {
+export async function getArticleProperties(articleName) {
 
   return {
     wordCount: 0,
