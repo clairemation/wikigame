@@ -12,7 +12,14 @@ export async function treasureList(){
 export async function exitList(){
 }
 
-export async function {
+export async function getArticleProperties(articleUrl) {
+
+  return {
+    wordCount: 0,
+    links: [{label, url}, {label, url}, ... ],
+    headerImageUrl: ''
+    // any other properties?
+  }
 }
 
 console.log("hi claire")
