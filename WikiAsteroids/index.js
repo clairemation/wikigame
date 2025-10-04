@@ -1,5 +1,122 @@
 'use strict';
 
+function cisplit(s,t){
+    return s.split(new RegExp(RegExp.escape(t),"ig"))
+}
+
+export function getWordCount(){return current_article.wc;}
+
+export function getLinks(){return current_article.wc;}
+
+export function getCitationsNeeded(){return current_article.wc;}
+
+
+function reverse_trunc(str){
+    const bstr=str
+    const delim=bstr.slice(-1)
+    if(delim[0] == "."){
+	return bstr.split(/[;.\n]/).at(-2)+"."
+    }else{
+	return bstr.split(/[;.\n]/).at(-1)+"."
+    }	
+}
+
+function get_citation_neededs(article){
+    const spl=article.split("{{cn")
+
+    const citations = spl.map(reverse_trunc).slice(0,-1)
+    return citations
+}
+
+function get_clarification_neededs(article){
+    const spl=article.split("{{clarify")
+
+//    console.log(spl[0])
+    const citations = spl.map(reverse_trunc).slice(0,-1)
+    return citations
+}
+
+function unbracket(l){
+    if(l.includes("|")){
+	return l.split("]]")[0].split("|")[0];
+    }
+    return l.split("]]")[0];
+    
+
+}
+    
+function get_outgoing_links(article){
+    const spl=article.split("[[").slice(1);
+     const   sspl=spl.filter(str=>!str.includes(":"));
+    const li=sspl.map(unbracket);
+    return li
+}
+
+function countWords(str) {
+  return str.trim().split(/\s+/).length;
+}
+
+function get_wordcount(article){
+    return countWords(article)
+}
+
+function get_cite_title(str){
+    try {
+	const a=str.split(new RegExp(RegExp.escape("title"),"ig"))[1].split("=")[1]
+	const b=a.split("|")[0]
+	return b;
+    }catch{
+	return "Dead Beef";
+    }
+}
+
+function get_references(article){
+    const spl=article.split(new RegExp(RegExp.escape("{{cite"),"ig")).slice(1)
+    const abl=cisplit(article,"{{cite")
+    return spl.map(get_cite_title);
+}
+
+export async function afetchWikipediaArticle(title,current_article) {
+    const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title)
+    const bdata= await b.json();
+    current_article.cn=get_citation_neededs(bdata.source)
+    current_article.cl=get_clarification_neededs(bdata.source)
+    current_article.li=get_outgoing_links(bdata.source)
+    current_article.wc=get_wordcount(bdata.source)
+    current_article.title=title
+    current_article.refs=get_references(bdata.source)
+    console.log(current_article.title);
+    return "hi"
+}
+
+async function aafetchWikipediaArticle(title) {
+    const a=  afetchWikipediaArticle(title);
+}
+
+export function fetchWikipediaArticle(title) {
+    aafetchWikipediaArticle(title);
+    console.log(title);
+    console.log(current_article.title);
+}
+
+export function dumpWikiArticle() {
+    console.log(current_article.title)
+    console.log(" cn:")
+    console.log(current_article.cn)
+    console.log(" cl:")
+    console.log(current_article.cl)
+    console.log(" li:")
+    console.log(current_article.li)
+    console.log(" wc:")
+    console.log(current_article.wc)
+    console.log(" refs:")
+    console.log(current_article.refs)
+
+}
+export function loadWikiArticle(name) {
+    const f= fetchWikipediaArticle(name)
+}
+
 // ------------------------------------------------------
 // CONSTANTS & GAME CONFIGURATIONS
 // ------------------------------------------------------
@@ -50,6 +167,38 @@ const GAME_CONFIG = {
   }
 };
 
+let myinit="Roberts";
+let articles={}
+
+function iterateAsteroid(name,x,y){
+    let count=5;
+
+    for(let i=0;i<articles[name].cn.length;i++){
+	const lab=articles[name].cn[i];
+	SpawnManager.spawnPowerup(POWERUP_TYPES.HEART,lab, {
+	    user: 'Unknown',
+	    diff_url: 'hi',
+	    diff_size: 5,
+	    diffSign: 1
+	    
+	});
+	count--;
+	if (count==0) break;
+    }
+    for(;count>=0;count--){
+	let n = articles[name].li[count];
+	SpawnManager.spawnAsteroid(n, 4, {
+	    user: 'Unknown',
+	    diff_url: 'hi',
+	    diff_size: 5,
+	    diffSign: 1
+	    
+	});
+	articles[n]={};
+	afetchWikipediaArticle(n,articles[n])
+    }
+}
+
 // ------------------------------------------------------
 // EVENT HANDLERS
 // ------------------------------------------------------
@@ -83,14 +232,19 @@ const WikiEventHandler = {
     const diff = data.length.new - data.length.old;
     const health = mapDiffToHealth(Math.abs(diff));
 
-    SpawnManager.spawnAsteroid(data.title, health, {
-      user: data.user || 'Unknown',
-      diff_url: data.notify_url,
-      diff_size: Math.abs(diff),
-      diffSign: diff < 0 ? -1 : 1,
-      lang: langCode,
-      wiki: data.wiki
-    });
+      if(myinit=="Roberts"){
+	  SpawnManager.spawnAsteroid("Bassoon", 10, {
+	      user: data.user || 'Unknown',
+	      diff_url: data.notify_url,
+	      diff_size: Math.abs(diff),
+	      diffSign: diff < 0 ? -1 : 1,
+	      lang: langCode,
+	      wiki: data.wiki
+	  });
+	  articles["Bassoon"]= {};
+	  afetchWikipediaArticle("Bassoon",articles["Bassoon"]);
+	  myinit="John";
+      }
   }
 };
 
@@ -1252,6 +1406,7 @@ function update(dt) {
       }
       
       if (nearAnyBullet) {
+
         for (let j = player.bullets.length - 1; j >= 0; j--) {
           const bullet = player.bullets[j];
           const distSq = distanceSquared(t.x, t.y, bullet.x, bullet.y);
@@ -1263,7 +1418,8 @@ function update(dt) {
             objectPools.returnBullet(removedBullet);
 
             SoundManager.play('pop');
-            if (t.health <= 0) {
+            if (1 || t.health <= 0) {
+		iterateAsteroid(t.title,t.x,t.y)
               spawnExplosion(t.x, t.y);
               const removed = gameState.targets.splice(i, 1)[0];
               cleanupLabelCanvas(removed);
@@ -1319,9 +1475,9 @@ function update(dt) {
 
         let pointsGained = 0;
         
-        for (let k = gameState.targets.length - 1; k >= 0; k--) {
+          for (let k = gameState.targets.length - 1; k >= 0; k--) {
           const target = gameState.targets[k];
-          if (target.isAsteroid) {
+            if (target.isAsteroid) {
             pointsGained += target.health || 0;
             spawnExplosion(target.x, target.y);
             const removedAsteroid = gameState.targets.splice(k, 1)[0];
