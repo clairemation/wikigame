@@ -12,6 +12,15 @@ export async function treasureList(){
 export async function exitList(){
 }
 
+export async function getArticleProperties(articleUrl) {
+
+  return {
+    wordCount: 0,
+    links: [{label, url}, {label, url}],
+    headerImageUrl: 'blah.jpg',
+    citationsNeeded: [text1, text2],
+  }
+}
 console.log("hi claire")
 
 await Wiki.afetchWikipediaArticle("Bassoon")
