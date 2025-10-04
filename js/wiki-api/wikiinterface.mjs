@@ -13,9 +13,9 @@ function cisplit(s,t){
 
 export function getWordCount(){return current_article.wc;}
 
-export function getLinks(){return current_article.wc;}
+export function getLinks(){return current_article.li;}
 
-export function getCitationsNeeded(){return current_article.wc;}
+export function getCitationsNeeded(){return current_article.cn;}
 
 
 function reverse_trunc(str){
@@ -25,7 +25,7 @@ function reverse_trunc(str){
 	return bstr.split(/[;.\n]/).at(-2)+"."
     }else{
 	return bstr.split(/[;.\n]/).at(-1)+"."
-    }	
+    }
 }
 
 function get_citation_neededs(article){
@@ -47,10 +47,10 @@ function unbracket(l){
     return l.split("]]")[0];
 
 }
-    
+
 function get_outgoing_links(article){
     const spl=article.split("[[").slice(1)
-    const li=spl.map(unbracket)
+    const li=spl.map(unbracket).filter(link => (link.search(/[^a-zA-Z ]/) == -1))
     return li
 }
 

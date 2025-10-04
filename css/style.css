@@ -245,3 +245,12 @@ textarea {
   }
 }
 
+body {
+  background: #000;
+}
+
+canvas {
+  background: #fff;
+  image-rendering: pixelated;
+  width: 100%;
+}
