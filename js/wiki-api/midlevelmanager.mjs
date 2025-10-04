@@ -21,7 +21,6 @@ export async function getArticleProperties(articleName) {
     citationsNeeded: [text1, text2],
   }
 }
-
 console.log("hi claire")
 
 await Wiki.afetchWikipediaArticle("Bassoon")
