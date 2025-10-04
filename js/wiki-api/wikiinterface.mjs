@@ -50,12 +50,7 @@ function get_wordcount(article){
     return countWords(article)
 }
 
-async function fetchWikipediaArticle(title) {
-//    const response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&titles=${encodeURIComponent(title)}&prop=extracts&explaintext`);
-//    const data = await response.json();
-//    const pages = data.query.pages;
-//    const pageId = Object.keys(pages)[0];
-//    console.log(pages)
+export async function afetchWikipediaArticle(title) {
     const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title)
     const bdata= await b.json();
     current_article.cn=get_citation_neededs(bdata.source)
@@ -63,10 +58,21 @@ async function fetchWikipediaArticle(title) {
     current_article.li=get_outgoing_links(bdata.source)
     current_article.wc=get_wordcount(bdata.source)
     current_article.title=title
+    console.log(current_article.title);
     return "hi"
 }
 
-function dumpWikiArticle(name) {
+async function aafetchWikipediaArticle(title) {
+    const a=  afetchWikipediaArticle(title);
+}
+
+export function fetchWikipediaArticle(title) {
+    aafetchWikipediaArticle(title);
+    console.log(title);
+    console.log(current_article.title);
+}
+
+export function dumpWikiArticle() {
     console.log(current_article.title)
     console.log(" cn:")
     console.log(current_article.cn)

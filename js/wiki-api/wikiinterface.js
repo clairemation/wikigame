@@ -1,5 +1,9 @@
 const current_article = {
-    links :[]
+    li :[],
+    cn :[],
+    cl :[],
+    wc : 0,
+    title : "None"
 }
 
 function reverse_trunc(str){
@@ -34,7 +38,7 @@ function unbracket(l){
     
 function get_outgoing_links(article){
     const spl=article.split("[[").slice(1)
-    li=spl.map(unbracket)
+    const li=spl.map(unbracket)
     return li
 }
 
@@ -54,28 +58,28 @@ async function fetchWikipediaArticle(title) {
 //    console.log(pages)
     const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title)
     const bdata= await b.json();
-    cn=get_citation_neededs(bdata.source)
-    cl=get_clarification_neededs(bdata.source)
-    li=get_outgoing_links(bdata.source)
-    wc=get_wordcount(bdata.source)
-    console.log(title)
-    console.log(" cn:")
-    console.log(cn)
-    console.log(" cl:")
-    console.log(cl)
-    console.log(" li:")
-    console.log(li)
-    console.log(" wc:")
-    console.log(wc)
+    current_article.cn=get_citation_neededs(bdata.source)
+    current_article.cl=get_clarification_neededs(bdata.source)
+    current_article.li=get_outgoing_links(bdata.source)
+    current_article.wc=get_wordcount(bdata.source)
+    current_article.title=title
     return "hi"
 }
 
+function dumpWikiArticle(name) {
+    console.log(current_article.title)
+    console.log(" cn:")
+    console.log(current_article.cn)
+    console.log(" cl:")
+    console.log(current_article.cl)
+    console.log(" li:")
+    console.log(current_article.li)
+    console.log(" wc:")
+    console.log(current_article.wc)
 
-function loadWikiArticle(name) {
-    current_article.links[0]="Richard"
-    current_article.links[1]="Jeremy"
-    const f= fetchWikipediaArticle('Bassoon')
-    const g= fetchWikipediaArticle('Majel_Barrett')
+}
+export function loadWikiArticle(name) {
+    const f= fetchWikipediaArticle(name)
 }
 
 
@@ -83,7 +87,7 @@ console.log('asdf');
 loadWikiArticle('hi');
 //console.log(current_article.links)
 
-module.exports = { loadWikiArticle };
+//module.exports = { loadWikiArticle,dumpWikiArticle };
 
 
 // TO RUN IN TERMINAL, TYPE

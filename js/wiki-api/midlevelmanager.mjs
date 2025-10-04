@@ -1,10 +1,29 @@
-import * as Wiki from './wikiinterface.js'
-type: module
+import * as Wiki from './wikiinterface.mjs'
 
-export function Test(){
+export async function Test(){
+}
+
+export async function loadLevel(){
+}
+
+export async function treasureList(){
+}
+
+export async function exitList(){
+}
+
+export async function {
 }
 
 console.log("hi claire")
+
+await Wiki.afetchWikipediaArticle("Bassoon")
+Wiki.dumpWikiArticle()
+await Wiki.afetchWikipediaArticle("Majel_Barrett")
+Wiki.dumpWikiArticle()
+
+
+
 Test()
 
 
