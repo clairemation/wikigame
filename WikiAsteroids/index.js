@@ -77,6 +77,7 @@ function get_references(article){
 }
 
 function is_redlink(article){
+    return article.includes("nonexistend-title");
 }
 
 function isnt_article(article){
@@ -85,6 +86,8 @@ function isnt_article(article){
 
 export async function afetchWikipediaArticle(title,current_article) {
     const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title)
+    console.log(b);
+    if(!b.ok) {current_article.is_redlink=true;return;}
     const bdata= await b.json();
     if (isnt_article(bdata.source)) return;
     current_article.cn=get_citation_neededs(bdata.source)
@@ -179,7 +182,18 @@ let myinit="Roberts";
 let articles={}
 
 function iterateAsteroid(name,x,y){
-    let count=5;
+    let count=10;
+    if(articles[name].is_redlink){
+	gameState.score+=100;
+	scores.push({name:name,type:"Red Link!",text:"Exciting!"});
+	{
+	    const snippetDiv = document.createElement('div');
+            snippetDiv.className = 'articleSnippet articleSnippet--new';
+            snippetDiv.innerHTML = "<strong>"+"Got RED LINK for "+name+"!!!!</strong>"
+            prependSnippet(snippetDiv);
+	}
+
+    }
     if(!articles[name].li) { return ;}
     if (articles[name].li.length<5){
 	return;
@@ -201,6 +215,7 @@ function iterateAsteroid(name,x,y){
     }
     for(;count>=0;count--){
 	let n = articles[name].li[count];
+	if(!n) break;
 	SpawnManager.spawnAsteroid(n, 4, {
 	    user: 'Unknown',
 	    diff_url: 'hi',
@@ -248,6 +263,7 @@ const WikiEventHandler = {
 
       if(myinit=="Roberts"){
 	  let article="Bassoon"
+	  article="List of New York City Designated Landmarks in Brooklyn"
 	  SpawnManager.spawnAsteroid(article, 10, {
 	      user: data.user || 'Unknown',
 	      diff_url: data.notify_url,
@@ -1714,13 +1730,17 @@ function drawGameOver() {
 	for(let i=0;i<scores.length;i++)
 	{
 	    let t=scores[i];
-            snippetDiv.innerHTML += "<strong>"+"Got citation needed on "+t.name+"<br> for: "+t.text+"</strong><br>"
+	    if(scores[i].type=="Red Link!"){
+		snippetDiv.innerHTML += "<strong>"+"GOT RED LINK!!! "+t.name+"</strong><br>"
+	    }else{
+		snippetDiv.innerHTML += "<strong>"+"Got citation needed on "+t.name+"<br> for: "+t.text+"</strong><br>"
+	    }
 	    
 	}
         prependSnippet(snippetDiv);
 	const emptyPopup = window.open("", "emptyWindow", "width=2000,height=4000");
 	if (emptyPopup) {
-	    emptyPopup.document.write("<h1>Your Wikipedia Task List:</h1><button onclick=\"window.print()\">Print this page</button><p>");
+	    emptyPopup.document.write("<h1>Your Wikipedia Task Lists:</h1><button onclick=\"window.print()\">Print this page</button><p>");
 	    emptyPopup.document.write(snippetDiv.innerHTML);
 	    emptyPopup.document.close(); // Important to close the document stream
 	} else {
