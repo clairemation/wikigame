@@ -1,6 +1,7 @@
 const nmg = require('node-maze-generator');
 const {getArticleProperties} = require('../wiki-api/midlevelmanager.mjs');
 
+const scoreParent = document.querySelector('#score');
 const roomTitleParent = document.querySelector('#roomtitle')
 const linkInfoParent = document.querySelector('#linkinfo')
 const ctx = document.querySelector('canvas').getContext('2d');
@@ -8,8 +9,11 @@ const ctx = document.querySelector('canvas').getContext('2d');
 const CELL_WIDTH = 60, CELL_HEIGHT = 60;
 const WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
 
+let playerIsStillEntering = false;
+let entranceName = 'bassoon';
 let animationFrame;
 let maze;
+let score = 0;
 let title = 'bassoon';
 let directionX = 0, directionY = 0;
 let windowX = 0, windowY = 0;
@@ -21,23 +25,20 @@ let positionToLinkName = {}
 
 start();
 
-function init()
-{
-
-}
 
 async function start()
 {
-  // const articleProperties = await getArticleProperties(title);
-  // const mazeProperties = generateMazeProperties(articleProperties);
-  const mazeProperties = {
-    title: 'default',
-    size: 20,
-    simplicity: 0.6,
-    links: ["one", "two", "three"],
-    treasures: ["blah blah", "woof woof", "asdf asdf", "fdsa fdsa"]
-  }
+  const articleProperties = await getArticleProperties(title);
+  const mazeProperties = generateMazeProperties(articleProperties);
+  // const mazeProperties = {
+  //   title: 'default',
+  //   size: 20,
+  //   simplicity: 0.6,
+  //   links: ["one", "two", "three"],
+  //   treasures: ["blah blah", "woof woof", "asdf asdf", "fdsa fdsa"]
+  // }
   setupMaze(mazeProperties);
+  playerIsStillEntering = true;
 
   addEventListener("keydown", onKeyDown);
   addEventListener("keyup", onKeyUp);
@@ -77,9 +78,34 @@ function loop()
 
   setPlayerPosition();
 
+  if (isPlayerOnTreasure())
+  {
+    score++;
+    scoreParent.innerText = score;
+    maze[Math.floor(playerX)][Math.floor(playerY)].type = "space"
+  }
+
   if (isPlayerOnExit())
   {
+    title = positionToLinkName[Math.floor(playerX)][Math.floor(playerY)];
+    clear();
+    start();
+  }
 
+  if (isPlayerOnEntrance())
+  {
+    if (!playerIsStillEntering)
+    {
+      let temp = entranceName;
+      title = entranceName;
+      entranceName = temp;
+      clear();
+      start();
+    }
+  }
+  else
+  {
+    playerIsStillEntering = false;
   }
 
   ctx.clearRect(windowX, windowY, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -91,13 +117,17 @@ function loop()
 
 function isPlayerOnExit()
 {
-  if (maze[Math.floor(Math.max(playerX, 0))][Math.floor(Math.max(playerY, 0))].type === 'exit')
-  {
-    title = positionToLinkName[Math.floor(playerX)][Math.floor(playerY)];
+  return maze[Math.floor(Math.max(playerX, 0))][Math.floor(Math.max(playerY, 0))].type === 'exit';
+}
 
-    clear();
-    start();
-  }
+function isPlayerOnTreasure()
+{
+  return maze[Math.floor(Math.max(playerX, 0))][Math.floor(Math.max(playerY, 0))].type === 'treasure';
+}
+
+function isPlayerOnEntrance()
+{
+  return maze[Math.floor(Math.max(playerX, 0))][Math.floor(Math.max(playerY, 0))].type === 'entrance';
 }
 
 function processMouseClick(e)
@@ -107,7 +137,15 @@ function processMouseClick(e)
 
   if (maze[clickGridPositionX][clickGridPositionY].type === "exit")
   {
-    linkInfoParent.innerHTML = positionToLinkName[clickGridPositionX][clickGridPositionY];
+    linkInfoParent.innerText = positionToLinkName[clickGridPositionX][clickGridPositionY];
+  }
+  if (maze[clickGridPositionX][clickGridPositionY].type === "treasure")
+  {
+    linkInfoParent.innerText = maze[clickGridPositionX][clickGridPositionY].name;
+  }
+  if (maze[clickGridPositionX][clickGridPositionY].type === "entrance")
+  {
+    linkInfoParent.innerText = entranceName;
   }
 }
 
@@ -143,12 +181,12 @@ function setPlayerPosition()
 
 function generateMazeProperties(articleProperties)
 {
-  console.log(articleProperties)
   return {
-    title: title,
-    size: articleProperties.wordCount / 100,
-    simplicity: 1 / (Math.abs(articleProperties.wordCount - articleProperties.links.length) / 3000),
-    links: articleProperties.links.slice(0, articleProperties.links.length / 5),
+    title: entranceName,
+    size: Math.max(articleProperties.wordCount / 400, 10),
+    simplicity: 1 / (Math.ceil(articleProperties.links.length) / 80),
+    links: articleProperties.links.slice(0, Math.max(articleProperties.links.length / 10, 1)),
+    treasures: articleProperties.citationsNeeded
   }
 }
 
@@ -164,10 +202,13 @@ function setupMaze(properties)
 
   createEntrance(usableBorderTiles);
   createExits(properties.links, usableBorderTiles);
+  createTreasures(properties.treasures);
 }
 
 function openUpMaze(simplicity)
 {
+
+
   for (let i = 0 ; i < maze.length ; i++)
   {
     for (let j = 0 ; j < maze[i].length ; j++)
@@ -248,9 +289,17 @@ function createExits(links, usableBorderTiles)
   }
 }
 
-function createTreasures()
+function createTreasures(citesNeeded)
 {
-  const emptySpaces = maze.flat.filter()
+  const emptySpaces = maze.flat().filter(cell => cell.type === "space");
+
+  for (let i = 0 ; i < citesNeeded.length ; i++)
+  {
+    const rand = Math.floor((Math.random() * (emptySpaces.length - 1)));
+    emptySpaces[rand].type = "treasure";
+    emptySpaces[rand].name = citesNeeded[i];
+    emptySpaces.splice(rand, 1);
+  }
 }
 
 function render()
@@ -274,9 +323,13 @@ function renderMaze()
       {
         renderCell(i, j, "yellow");
       }
-      else if (maze[i][j] === "entrance")
+      else if (maze[i][j].type === "entrance")
       {
         renderCell(i, j, "black");
+      }
+      else if (maze[i][j].type === "treasure")
+      {
+        renderCell(i, j, "red");
       }
     }
   }
