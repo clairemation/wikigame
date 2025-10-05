@@ -3,12 +3,16 @@ const {getArticleProperties} = require('../wiki-api/midlevelmanager.mjs');
 
 const ctx = document.querySelector('canvas').getContext('2d');
 
+const CELL_WIDTH = 60, CELL_HEIGHT = 60;
+const WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
+
 let maze;
 let directionX = 0, directionY = 0;
 let windowX = 0, windowY = 0;
-let speed = 2.5;
+let speed = 0.05;
 let keyStatus = {}
 let deltaTime = 0;
+let playerX = 0, playerY = 0;
 
 start();
 
@@ -21,26 +25,47 @@ function loop()
 
   requestAnimationFrame(loop);
 
-  setDirection();
+  setPlayerDirection();
 
-  ctx.clearRect(windowX, windowY, 800, 800);
-  const translationX = directionX * speed;
-  const translationY = directionY * speed;
-  windowX += translationX;
-  windowY += translationY;
-  ctx.translate(-translationX, -translationY);
-  renderMaze(maze);
+  ctx.clearRect(windowX, windowY, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+  ctx.setTransform(1, 0, 0, 1, -windowX, -windowY);
+  render();
 
 }
 
-function setDirection()
+function setPlayerDirection()
 {
+  console.log(Math.floor(playerX), Math.floor(playerY));
+
   directionX = 0;
   directionY = 0;
   if (keyStatus['w']) directionY--;
   if (keyStatus['a']) directionX--;
   if (keyStatus['s']) directionY++;
   if (keyStatus['d']) directionX++;
+
+  let newX = playerX + directionX * speed;
+  let newY = playerY + directionY * speed;
+
+  // wall hit collision
+
+  // if (directionX < 0 && (maze[Math.floor(newX)][Math.floor(playerY)] === "wall"))
+  //   newX = playerX;
+  // if (directionX > 0 && (maze[Math.ceil(newX)][Math.floor(playerY)] === "wall"))
+  //   newX = playerX;
+  // if (directionY < 0 && maze[Math.floor(playerX)][Math.floor(newY)] === "wall")
+  //   newY = playerY;
+  // if (directionY > 0 && maze[Math.floor(playerX)][Math.ceil(newY)] === "wall")
+  //   newY = playerY;
+
+  playerX = newX;
+  playerY = newY;
+
+  windowX = playerX * CELL_WIDTH + CELL_WIDTH / 2 - WINDOW_WIDTH / 2;
+  windowY = playerY * CELL_HEIGHT + CELL_HEIGHT / 2 - WINDOW_HEIGHT / 2;
+
+  console.log(windowX, windowY);
 }
 
 async function start()
@@ -97,18 +122,31 @@ function createEntrance(side = -1)
 
     for (let i = 0 ; i < maze.length ; i++)
     {
-      const currentTile = startTile + i % maze.length;
+      const currentTile = (startTile + i) % (maze.length - 1);
       if (maze[currentTile][0] === "wall" && maze[currentTile][1] === "space")
       {
         maze[currentTile][0] = "entrance"
+        playerX = currentTile;
+        playerY = 0;
         return;
       }
     }
-
   }
 }
 
-function renderMaze(maze)
+function render()
+{
+  renderMaze();
+  renderPlayer();
+}
+
+function renderPlayer()
+{
+  ctx.fillStyle = "red";
+  ctx.fillRect(playerX * CELL_WIDTH, playerY * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT);
+}
+
+function renderMaze()
 {
   for (let i = 0 ; i < maze.length ; i++) {
     for (let j = 0; j < maze[i].length; j++) {
@@ -119,10 +157,8 @@ function renderMaze(maze)
 
   function renderWallCell(i, j)
   {
-    const WIDTH = 60, HEIGHT = 60;
-
     ctx.fillStyle = "green";
-    ctx.fillRect(i * WIDTH - 1, j * HEIGHT - 1, WIDTH + 1, HEIGHT + 1);
+    ctx.fillRect(i * CELL_WIDTH - 1, j * CELL_HEIGHT - 1, CELL_WIDTH + 1, CELL_HEIGHT + 1);
 
   }
 }
