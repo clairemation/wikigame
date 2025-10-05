@@ -9,6 +9,7 @@ const ctx = document.querySelector('canvas').getContext('2d');
 const CELL_WIDTH = 60, CELL_HEIGHT = 60;
 const WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
 
+const countdownTime = 0;
 let acquiredTreasures = [];
 let currentRoomAcquiredTreasures = [];
 let playerIsStillEntering = false;
@@ -27,20 +28,14 @@ let positionToLinkName = {}
 
 const shouldPopulateTreasures = () => !acquiredTreasures.find(entry => entry.room === title)
 
-start();
+startRoom();
 
+scoreParent.addEventListener('click', e => alert(acquiredTreasures))
 
-async function start()
+async function startRoom()
 {
   const articleProperties = await getArticleProperties(title);
   const mazeProperties = generateMazeProperties(articleProperties);
-  // const mazeProperties = {
-  //   title: 'default',
-  //   size: 20,
-  //   simplicity: 0.6,
-  //   links: ["one", "two", "three"],
-  //   treasures: ["blah blah", "woof woof", "asdf asdf", "fdsa fdsa"]
-  // }
   setupMaze(mazeProperties);
   playerIsStillEntering = true;
 
@@ -99,7 +94,7 @@ function loop()
     entranceName = title;
     title = positionToLinkName[Math.floor(playerGridX)][Math.floor(playerGridY)];
     clear();
-    start();
+    startRoom();
     console.log(acquiredTreasures);
   }
 
@@ -111,7 +106,7 @@ function loop()
       title = entranceName;
       entranceName = temp;
       clear();
-      start();
+      startRoom();
     }
   }
   else
@@ -180,14 +175,27 @@ function setPlayerPosition()
 
   // wall hit collision
 
-  // if (directionX < 0 && (maze[Math.floor(newX)][Math.floor(newY)] === "wall"))
+  // if (directionX < 0 && (maze[Math.floor(playerGridX - 1)][Math.floor(playerGridY)].type === "wall"))
+  // {
+  //   console.log("left")
   //   newX = playerGridX;
-  // if (directionX > 0 && (maze[Math.floor(newX)][Math.floor(newY)] === "wall"))
+  // }
+  // if (directionX > 0 && (maze[Math.floor(playerGridX + 1)][Math.floor(playerGridY)].type === "wall"))
+  // {
+  //   console.log("right")
   //   newX = playerGridX;
-  // if (directionY < 0 && maze[Math.floor(newX)][Math.floor(newY)] === "wall")
+  // }
+  // if (directionY < 0 && maze[Math.floor(playerGridX)][Math.floor(playerGridY - 1)].type === "wall")
+  // {
+  //   console.log("up")
   //   newY = playerGridY;
-  // if (directionY > 0 && maze[Math.floor(newX)][Math.floor(newY)] === "wall")
+  // }
+  //
+  // if (directionY > 0 && maze[Math.floor(playerGridX)][Math.floor(playerGridY + 1)].type === "wall")
+  // {
+  //   console.log("down")
   //   newY = playerGridY;
+  // }
 
   playerGridX = newX;
   playerGridY = newY;
@@ -328,7 +336,7 @@ function render()
 
 function renderPlayer()
 {
-  renderCell(playerGridX, playerGridY, "blue");
+  renderPlayerCell(playerGridX, playerGridY, "blue");
 }
 
 function renderMaze()
@@ -357,7 +365,12 @@ function renderCell(i, j, color)
 {
   ctx.fillStyle = color;
   ctx.fillRect(i * CELL_WIDTH, j * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT);
+}
 
+function renderPlayerCell(x, y, color)
+{
+  ctx.fillStyle = color;
+  ctx.fillRect(x * CELL_WIDTH + 10, y * CELL_HEIGHT + 10, CELL_WIDTH - 20, CELL_HEIGHT -20);
 }
 
 export default function main() {}
