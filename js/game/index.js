@@ -1,12 +1,14 @@
 const nmg = require('node-maze-generator');
 const {getArticleProperties} = require('../wiki-api/midlevelmanager.mjs');
 
+const roomTitleParent = document.querySelector('#roomtitle')
 const linkInfoParent = document.querySelector('#linkinfo')
 const ctx = document.querySelector('canvas').getContext('2d');
 
 const CELL_WIDTH = 60, CELL_HEIGHT = 60;
 const WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
 
+let animationFrame;
 let maze;
 let directionX = 0, directionY = 0;
 let windowX = 0, windowY = 0;
@@ -18,23 +20,50 @@ let positionToLinkName = {}
 
 start();
 
+function init()
+{
+
+}
+
 async function start()
 {
-  addEventListener("keydown", e => keyStatus[e.key] = true);
-  addEventListener("keyup", e => keyStatus[e.key] = false);
+  const articleProperties = await getArticleProperties("bassoon");
+  const mazeProperties = generateMazeProperties(articleProperties);
+  // const mazeProperties = {size: 20, simplicity: 0.6, links: ["one", "two", "three"]}
+  setupMaze(mazeProperties);
 
+  addEventListener("keydown", onKeyDown);
+  addEventListener("keyup", onKeyUp);
   addEventListener("mousedown", processMouseClick);
 
-  // const articleProperties = await getArticleProperties("bassoon");
-  // const mazeProperties = generateMazeProperties(articleProperties);
-  const mazeProperties = {size: 20, simplicity: 0.6, links: ["one", "two", "three"]}
-  setupMaze(mazeProperties);
-  requestAnimationFrame(loop);
+  roomTitleParent.innerText = "bassoon"
+
+  animationFrame = requestAnimationFrame(loop);
+}
+
+function clear()
+{
+  cancelAnimationFrame(animationFrame);
+  removeEventListener("keydown", onKeyDown);
+  removeEventListener("keyup", onKeyUp);
+  removeEventListener("mousedown", processMouseClick);
+  ctx.clearRect(windowX, windowY, WINDOW_WIDTH, WINDOW_HEIGHT);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+function onKeyDown(e)
+{
+  keyStatus[e.key] = true
+}
+
+function onKeyUp(e)
+{
+  keyStatus[e.key] = false;
 }
 
 function loop()
 {
-  requestAnimationFrame(loop);
+  animationFrame = requestAnimationFrame(loop);
 
   setPlayerDirection();
 
@@ -47,8 +76,8 @@ function loop()
 
 function processMouseClick(e)
 {
-  const clickGridPositionX = Math.floor((e.clientX + windowX) / CELL_WIDTH);
-  const clickGridPositionY = Math.floor((e.clientY + windowY) / CELL_HEIGHT)
+  const clickGridPositionX = Math.floor((e.clientX - e.target.clientLeft + windowX) / CELL_WIDTH);
+  const clickGridPositionY = Math.floor((e.clientY - e.target.clientTop + windowY) / CELL_HEIGHT)
 
   if (maze[clickGridPositionX][clickGridPositionY] === "exit")
   {
@@ -58,8 +87,6 @@ function processMouseClick(e)
 
 function setPlayerDirection()
 {
-  console.log(Math.floor(playerX), Math.floor(playerY));
-
   directionX = 0;
   directionY = 0;
   if (keyStatus['w']) directionY--;
@@ -93,7 +120,7 @@ function generateMazeProperties(articleProperties)
   return {
     size: articleProperties.wordCount / 100,
     simplicity: 1 / (articleProperties.wordCount / 3000),
-    links: articleProperties.links.slice(0, Math.min(articleProperties.links.length / 100, 1)),
+    links: articleProperties.links.slice(0, articleProperties.links.length / 5),
   }
 }
 
