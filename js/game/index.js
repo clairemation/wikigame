@@ -10,6 +10,7 @@ const CELL_WIDTH = 60, CELL_HEIGHT = 60;
 const WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
 
 let playerIsStillEntering = false;
+let shouldPopulateTreasures = true;
 let entranceName = 'bassoon';
 let animationFrame;
 let maze;
@@ -87,7 +88,9 @@ function loop()
 
   if (isPlayerOnExit())
   {
+    entranceName = title;
     title = positionToLinkName[Math.floor(playerX)][Math.floor(playerY)];
+    shouldPopulateTreasures = true;
     clear();
     start();
   }
@@ -99,6 +102,7 @@ function loop()
       let temp = entranceName;
       title = entranceName;
       entranceName = temp;
+      shouldPopulateTreasures = false
       clear();
       start();
     }
@@ -132,20 +136,23 @@ function isPlayerOnEntrance()
 
 function processMouseClick(e)
 {
-  const clickGridPositionX = Math.floor((e.clientX - e.target.clientLeft + windowX) / CELL_WIDTH);
-  const clickGridPositionY = Math.floor((e.clientY - e.target.clientTop + windowY) / CELL_HEIGHT)
+  try {
+    const clickGridPositionX = Math.floor((e.clientX - e.target.clientLeft + windowX) / CELL_WIDTH);
+    const clickGridPositionY = Math.floor((e.clientY - e.target.clientTop + windowY) / CELL_HEIGHT)
 
-  if (maze[clickGridPositionX][clickGridPositionY].type === "exit")
-  {
-    linkInfoParent.innerText = positionToLinkName[clickGridPositionX][clickGridPositionY];
+    if (maze[clickGridPositionX][clickGridPositionY].type === "exit") {
+      linkInfoParent.innerText = positionToLinkName[clickGridPositionX][clickGridPositionY];
+    }
+    if (maze[clickGridPositionX][clickGridPositionY].type === "treasure") {
+      linkInfoParent.innerText = maze[clickGridPositionX][clickGridPositionY].name;
+    }
+    if (maze[clickGridPositionX][clickGridPositionY].type === "entrance") {
+      linkInfoParent.innerText = entranceName;
+    }
   }
-  if (maze[clickGridPositionX][clickGridPositionY].type === "treasure")
+  catch (e)
   {
-    linkInfoParent.innerText = maze[clickGridPositionX][clickGridPositionY].name;
-  }
-  if (maze[clickGridPositionX][clickGridPositionY].type === "entrance")
-  {
-    linkInfoParent.innerText = entranceName;
+    console.error(e)
   }
 }
 
@@ -182,7 +189,7 @@ function setPlayerPosition()
 function generateMazeProperties(articleProperties)
 {
   return {
-    title: entranceName,
+    title: title,
     size: Math.max(articleProperties.wordCount / 400, 10),
     simplicity: 1 / (Math.ceil(articleProperties.links.length) / 80),
     links: articleProperties.links.slice(0, Math.max(articleProperties.links.length / 10, 1)),
@@ -202,7 +209,8 @@ function setupMaze(properties)
 
   createEntrance(usableBorderTiles);
   createExits(properties.links, usableBorderTiles);
-  createTreasures(properties.treasures);
+  if (shouldPopulateTreasures)
+    createTreasures(properties.treasures);
 }
 
 function openUpMaze(simplicity)
