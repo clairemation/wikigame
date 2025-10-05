@@ -263,3 +263,10 @@ canvas {
   image-rendering: pixelated;
   /*width: 100%;*/
 }
+
+#score {
+  position: absolute;
+  top: 0;
+  left: 750px;
+  color: #111;
+}
