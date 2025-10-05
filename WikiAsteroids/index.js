@@ -76,9 +76,17 @@ function get_references(article){
     return spl.map(get_cite_title);
 }
 
+function is_redlink(article){
+}
+
+function isnt_article(article){
+    return article.includes("REDIRECT");
+}
+
 export async function afetchWikipediaArticle(title,current_article) {
     const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title)
     const bdata= await b.json();
+    if (isnt_article(bdata.source)) return;
     current_article.cn=get_citation_neededs(bdata.source)
     current_article.cl=get_clarification_neededs(bdata.source)
     current_article.li=get_outgoing_links(bdata.source)
@@ -86,7 +94,7 @@ export async function afetchWikipediaArticle(title,current_article) {
     current_article.title=title
     current_article.refs=get_references(bdata.source)
     console.log(current_article.title);
-    return "hi"
+    return "hi";
 }
 
 async function aafetchWikipediaArticle(title) {
@@ -172,15 +180,21 @@ let articles={}
 
 function iterateAsteroid(name,x,y){
     let count=5;
-
+    if(!articles[name].li) { return ;}
+    if (articles[name].li.length<5){
+	return;
+    }
+    
     for(let i=0;i<articles[name].cn.length;i++){
 	const lab=articles[name].cn[i];
 	SpawnManager.spawnPowerup(POWERUP_TYPES.HEART,lab, {
 	    user: 'Unknown',
 	    diff_url: 'hi',
 	    diff_size: 5,
-	    diffSign: 1
-	    
+	    diffSign: 1,
+	    name: name,
+	    type: 1,
+	    data: lab
 	});
 	count--;
 	if (count==0) break;
@@ -233,7 +247,8 @@ const WikiEventHandler = {
     const health = mapDiffToHealth(Math.abs(diff));
 
       if(myinit=="Roberts"){
-	  SpawnManager.spawnAsteroid("Bassoon", 10, {
+	  let article="Bassoon"
+	  SpawnManager.spawnAsteroid(article, 10, {
 	      user: data.user || 'Unknown',
 	      diff_url: data.notify_url,
 	      diff_size: Math.abs(diff),
@@ -241,8 +256,8 @@ const WikiEventHandler = {
 	      lang: langCode,
 	      wiki: data.wiki
 	  });
-	  articles["Bassoon"]= {};
-	  afetchWikipediaArticle("Bassoon",articles["Bassoon"]);
+	  articles[article]= {};
+	  afetchWikipediaArticle(article,articles[article]);
 	  myinit="John";
       }
   }
@@ -1264,6 +1279,8 @@ const gamepadController = {
   }
 };
 
+let scores=[];
+
 // ------------------------------------------------------
 // MAIN GAME UPDATE
 // ------------------------------------------------------
@@ -1443,7 +1460,16 @@ function update(dt) {
 
       if (t.isHeart) {
         SoundManager.play('acquireHeart');
-        const removed = gameState.targets.splice(i, 1)[0];
+        gameState.score += 10;
+	  scores.push({name:t.metadata.name,type:"citation needed",text:t.metadata.data});
+          const removed = gameState.targets.splice(i, 1)[0];
+	  {
+              const snippetDiv = document.createElement('div');
+              snippetDiv.className = 'articleSnippet articleSnippet--new';
+              snippetDiv.innerHTML = "<strong>"+"Got citation needed on "+t.metadata.name+" for: "+t.metadata.data+"</strong>"
+              prependSnippet(snippetDiv);
+	  }
+	     
         cleanupLabelCanvas(removed);
         setTimeout(() => {
           SnippetManager.fetchAndDisplay(removed.metadata?.wiki || 'enwiki', removed);
@@ -1478,7 +1504,7 @@ function update(dt) {
           for (let k = gameState.targets.length - 1; k >= 0; k--) {
           const target = gameState.targets[k];
             if (target.isAsteroid) {
-            pointsGained += target.health || 0;
+            pointsGained += 1//target.health || 0;
             spawnExplosion(target.x, target.y);
             const removedAsteroid = gameState.targets.splice(k, 1)[0];
             cleanupLabelCanvas(removedAsteroid);
@@ -1678,7 +1704,28 @@ function drawGameOver() {
     };
   }
 
+
   ctx.restore();
+    {
+        const snippetDiv = document.createElement('div');
+        snippetDiv.className = 'articleSnippet articleSnippet--new';
+
+
+	for(let i=0;i<scores.length;i++)
+	{
+	    let t=scores[i];
+            snippetDiv.innerHTML += "<strong>"+"Got citation needed on "+t.name+"<br> for: "+t.text+"</strong><br>"
+	    
+	}
+        prependSnippet(snippetDiv);
+	const emptyPopup = window.open("", "emptyWindow", "width=2000,height=4000");
+	if (emptyPopup) {
+	    emptyPopup.document.write("<h1>Your Wikipedia Task List:</h1><button onclick=\"window.print()\">Print this page</button><p>");
+	    emptyPopup.document.write(snippetDiv.innerHTML);
+	    emptyPopup.document.close(); // Important to close the document stream
+	} else {
+	}
+    }
 }
 
 function drawPlayer() {
