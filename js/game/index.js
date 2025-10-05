@@ -28,9 +28,15 @@ function init()
 
 async function start()
 {
-  const articleProperties = await getArticleProperties(title);
-  const mazeProperties = generateMazeProperties(articleProperties);
-  // const mazeProperties = {title: 'default', size: 20, simplicity: 0.6, links: ["one", "two", "three"]}
+  // const articleProperties = await getArticleProperties(title);
+  // const mazeProperties = generateMazeProperties(articleProperties);
+  const mazeProperties = {
+    title: 'default',
+    size: 20,
+    simplicity: 0.6,
+    links: ["one", "two", "three"],
+    treasures: ["blah blah", "woof woof", "asdf asdf", "fdsa fdsa"]
+  }
   setupMaze(mazeProperties);
 
   addEventListener("keydown", onKeyDown);
@@ -85,7 +91,7 @@ function loop()
 
 function isPlayerOnExit()
 {
-  if (maze[Math.floor(Math.max(playerX, 0))][Math.floor(Math.max(playerY, 0))] === 'exit')
+  if (maze[Math.floor(Math.max(playerX, 0))][Math.floor(Math.max(playerY, 0))].type === 'exit')
   {
     title = positionToLinkName[Math.floor(playerX)][Math.floor(playerY)];
 
@@ -99,7 +105,7 @@ function processMouseClick(e)
   const clickGridPositionX = Math.floor((e.clientX - e.target.clientLeft + windowX) / CELL_WIDTH);
   const clickGridPositionY = Math.floor((e.clientY - e.target.clientTop + windowY) / CELL_HEIGHT)
 
-  if (maze[clickGridPositionX][clickGridPositionY] === "exit")
+  if (maze[clickGridPositionX][clickGridPositionY].type === "exit")
   {
     linkInfoParent.innerHTML = positionToLinkName[clickGridPositionX][clickGridPositionY];
   }
@@ -137,10 +143,11 @@ function setPlayerPosition()
 
 function generateMazeProperties(articleProperties)
 {
+  console.log(articleProperties)
   return {
     title: title,
     size: articleProperties.wordCount / 100,
-    simplicity: 1 / (articleProperties.wordCount / 3000),
+    simplicity: 1 / (Math.abs(articleProperties.wordCount - articleProperties.links.length) / 3000),
     links: articleProperties.links.slice(0, articleProperties.links.length / 5),
   }
 }
@@ -149,7 +156,7 @@ function setupMaze(properties)
 {
   const generator = new nmg.generators.maze({}, {width: properties.size, height: properties.size});
   maze = generator.data.grid.cells[0].map(row =>
-    row.map(cell => cell.blocked ? "wall" : "space")
+    row.map(cell => cell.blocked ? {type: "wall", x: cell.x, y: cell.y} : {type: "space", x: cell.x, y: cell.y})
   )
   openUpMaze(properties.simplicity);
 
@@ -166,9 +173,9 @@ function openUpMaze(simplicity)
     for (let j = 0 ; j < maze[i].length ; j++)
     {
       const cell = maze[i][j];
-      if (cell === "wall" && i > 0 && j > 0 && i < maze.length - 1 && j < maze.length - 1 && Math.random() < simplicity)
+      if (cell.type === "wall" && i > 0 && j > 0 && i < maze.length - 1 && j < maze.length - 1 && Math.random() < simplicity)
       {
-        maze[i][j] = "space";
+        maze[i][j].type = "space";
       }
     }
   }
@@ -181,28 +188,28 @@ function getUsableBorderTiles()
   // top
   for (let i = 0 ; i < maze.length ; i++)
   {
-    if (maze[i][0] === "wall" && maze[i][1] === "space")
+    if (maze[i][0].type === "wall" && maze[i][1].type === "space")
         usableBorderTiles.push({x: i, y: 0});
   }
 
   // bottom
   for (let i = 0 ; i < maze.length ; i++)
   {
-    if (maze[i][maze.length - 1] === "wall" && maze[i][maze.length - 2] === "space")
+    if (maze[i][maze.length - 1].type === "wall" && maze[i][maze.length - 2].type === "space")
       usableBorderTiles.push({x: i, y: maze.length -1});
   }
 
   // left, minus top and bottom
   for (let i = 1 ; i < maze.length -1  ; i++)
   {
-    if (maze[0][i] === "wall" && maze[1][i] === "space")
+    if (maze[0][i].type === "wall" && maze[1][i].type === "space")
       usableBorderTiles.push({x: 0, y: i});
   }
 
   //right, minus top and bottom
   for (let i = 1 ; i < maze.length -1  ; i++)
   {
-    if (maze[maze.length - 1][i] === "wall" && maze[maze.length - 2][i] === "space")
+    if (maze[maze.length - 1][i] === "wall".type && maze[maze.length - 2][i].type === "space")
       usableBorderTiles.push({x: maze.length - 1, y: i});
   }
 
@@ -217,7 +224,7 @@ function createEntrance(usableBorderTiles)
 
   usableBorderTiles.splice(index, 1);
 
-  maze[pos.x][pos.y] = "entrance";
+  maze[pos.x][pos.y].type = "entrance";
 
   playerX = pos.x;
   playerY = pos.y;
@@ -233,12 +240,17 @@ function createExits(links, usableBorderTiles)
 
     usableBorderTiles.splice(index, 1);
 
-    maze[pos.x][pos.y] = "exit";
+    maze[pos.x][pos.y].type = "exit";
 
     if (!positionToLinkName[pos.x])
       positionToLinkName[pos.x] = []
     positionToLinkName[pos.x][pos.y] = links[i];
   }
+}
+
+function createTreasures()
+{
+  const emptySpaces = maze.flat.filter()
 }
 
 function render()
@@ -256,9 +268,9 @@ function renderMaze()
 {
   for (let i = 0 ; i < maze.length ; i++) {
     for (let j = 0; j < maze[i].length; j++) {
-      if (maze[i][j] === "wall")
+      if (maze[i][j].type === "wall")
         renderCell(i, j, "green");
-      else if (maze[i][j] === "exit" && !exitsAreOpen)
+      else if (maze[i][j].type === "exit" && !exitsAreOpen)
       {
         renderCell(i, j, "yellow");
       }
