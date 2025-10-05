@@ -7,30 +7,18 @@ let maze;
 let directionX = 0, directionY = 0;
 let windowX = 0, windowY = 0;
 let speed = 2.5;
-let keyStatus = {
-  'w': false,
-  'a': false,
-  's': false,
-  'd': false,
-}
+let keyStatus = {}
+let deltaTime = 0;
 
 start();
 
-export default function main(state)
+function loop()
 {
   // draw state
   // get input
   // update state
   // return new state
-}
 
-addEventListener("keydown", e => keyStatus[e.key] = true);
-addEventListener("keyup", e => keyStatus[e.key] = false);
-
-requestAnimationFrame(loop);
-
-function loop()
-{
   requestAnimationFrame(loop);
 
   setDirection();
@@ -57,15 +45,19 @@ function setDirection()
 
 async function start()
 {
+  addEventListener("keydown", e => keyStatus[e.key] = true);
+  addEventListener("keyup", e => keyStatus[e.key] = false);
+  requestAnimationFrame(loop);
+
   // const articleProperties = await getArticleProperties("bassoon");
   // const mazeProperties = generateMazeProperties(articleProperties);
   const mazeProperties = {size: 20, simplicity: 0.6}
   setupMaze(mazeProperties);
+  requestAnimationFrame(loop);
 }
 
 function generateMazeProperties(articleProperties)
 {
-  console.log(articleProperties);
   return {
     size: articleProperties.wordCount / 100,
     simplicity: 1 / (articleProperties.wordCount / 3000)
@@ -78,12 +70,11 @@ function setupMaze(properties)
   maze = generator.data.grid.cells[0].map(row =>
     row.map(cell => cell.blocked ? "wall" : "space")
   )
-  openUpMaze(maze, properties.simplicity);
-  renderMaze(maze);
-
+  openUpMaze(properties.simplicity);
+  createEntrance();
 }
 
-function openUpMaze(maze, simplicity)
+function openUpMaze(simplicity)
 {
   for (let i = 0 ; i < maze.length ; i++)
   {
@@ -98,9 +89,23 @@ function openUpMaze(maze, simplicity)
   }
 }
 
-function addEntrance()
+function createEntrance(side = -1)
 {
+  if (side === -1)
+  {
+    const startTile = Math.floor((Math.random() * (maze.length - 1)));
 
+    for (let i = 0 ; i < maze.length ; i++)
+    {
+      const currentTile = startTile + i % maze.length;
+      if (maze[currentTile][0] === "wall" && maze[currentTile][1] === "space")
+      {
+        maze[currentTile][0] = "entrance"
+        return;
+      }
+    }
+
+  }
 }
 
 function renderMaze(maze)
@@ -121,3 +126,5 @@ function renderMaze(maze)
 
   }
 }
+
+export default function main() {}
