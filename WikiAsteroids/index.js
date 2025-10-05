@@ -15,9 +15,9 @@ function reverse_trunc(str){
     const bstr=str
     const delim=bstr.slice(-1)
     if(delim[0] == "."){
-	return bstr.split(/[;.\n]/).at(-2)+"."
+	return bstr.split(/[;.}\n]/).at(-2)+"."
     }else{
-	return bstr.split(/[;.\n]/).at(-1)+"."
+	return bstr.split(/[;.}\n]/).at(-1)+"."
     }	
 }
 
@@ -31,7 +31,7 @@ function get_citation_neededs(article){
 function get_clarification_neededs(article){
     const spl=article.split("{{clarify")
 
-//    console.log(spl[0])
+    console.log(spl[0])
     const citations = spl.map(reverse_trunc).slice(0,-1)
     return citations
 }
@@ -86,7 +86,6 @@ function isnt_article(article){
 
 export async function afetchWikipediaArticle(title,current_article) {
     const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title)
-    console.log(b);
     if(!b.ok) {current_article.is_redlink=true;return;}
     current_article.is_redlink=false;
     const bdata= await b.json();
@@ -204,6 +203,23 @@ function iterateAsteroid(name,x,y){
     for(let i=0;i<articles[name].cn.length;i++){
 	const lab=articles[name].cn[i];
 	SpawnManager.spawnPowerup(POWERUP_TYPES.HEART,lab, {
+	    user: 'Unknown',
+	    diff_url: 'hi',
+	    diff_size: 5,
+	    diffSign: 1,
+	    name: name,
+	    type: 1,
+	    data: lab
+	});
+	count--;
+	if (count==0) break;
+    }
+
+    console.error("BOBBBBBBBBBBBBBBBBBBBBB");
+
+    for(let i=0;i<articles[name].cl.length;i++){
+	const lab=articles[name].cl[i];
+	SpawnManager.spawnPowerup(POWERUP_TYPES.SHIELD,lab, {
 	    user: 'Unknown',
 	    diff_url: 'hi',
 	    diff_size: 5,
@@ -1483,7 +1499,7 @@ function update(dt) {
       if (t.isHeart) {
         SoundManager.play('acquireHeart');
         gameState.score += 10;
-	  scores.push({name:t.metadata.name,type:"citation needed",text:t.metadata.data});
+	  scores.push({name:t.metadata.name,type:"Citation needed",text:t.metadata.data});
           const removed = gameState.targets.splice(i, 1)[0];
 	  {
               const snippetDiv = document.createElement('div');
@@ -1498,6 +1514,15 @@ function update(dt) {
         }, 0);
         gameState.lives++;
       } else if (t.isShield) {
+        gameState.score += 10;
+	  scores.push({name:t.metadata.name,type:"Clarification needed",text:t.metadata.data});
+	  {
+              const snippetDiv = document.createElement('div');
+              snippetDiv.className = 'articleSnippet articleSnippet--new';
+              snippetDiv.innerHTML = "<strong>"+"Got clarification needed on "+t.metadata.name+" for: "+t.metadata.data+"</strong>"
+              prependSnippet(snippetDiv);
+	  }
+	     
         SoundManager.play('acquireInvincibility');
         const removed = gameState.targets.splice(i, 1)[0];
         cleanupLabelCanvas(removed);
@@ -1694,6 +1719,10 @@ function draw() {
   }
 }
 
+function urlize(link){
+    return "<a href=\"http://en.wikipedia.org/wiki/"+link+"\">"+link+"</a>";
+}
+
 function drawGameOver() {
   ctx.save();
   ctx.fillStyle = 'rgba(0,0,0,0.7)';
@@ -1732,15 +1761,17 @@ function drawGameOver() {
         const snippetDiv = document.createElement('div');
         snippetDiv.className = 'articleSnippet articleSnippet--new';
 
-
-	for(let i=0;i<scores.length;i++)
+	let mscores=[...new Set(scores)]
+	for(let i=0;i<mscores.length;i++)
 	{
-	    let t=scores[i];
-	    if(scores[i].type=="Red Link!"){
-		snippetDiv.innerHTML += "<strong>"+"GOT RED LINK!!! "+t.name+"</strong><br>"
+	    let t=mscores[i];
+	   if(t.name){
+	    if(t.type=="Red Link!"){
+		snippetDiv.innerHTML += "<strong>"+"GOT RED LINK!!! "+urlize(t.name)+"</strong><br>"
 	    }else{
-		snippetDiv.innerHTML += "<strong>"+"Got citation needed on "+t.name+"<br> for: "+t.text+"</strong><br>"
+		snippetDiv.innerHTML += "<strong>"+"Got "+t.type+" on "+urlize(t.name)+"<br> for: "+t.text+"</strong><br>"
 	    }
+	   }
 	    
 	}
         prependSnippet(snippetDiv);
