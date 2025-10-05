@@ -252,6 +252,12 @@ body {
   font-size: 2em;
 }
 
+h1 {
+  font-size: 1em;
+  position: absolute;
+  color: #111111;
+}
+
 canvas {
   background: #fff;
   image-rendering: pixelated;
