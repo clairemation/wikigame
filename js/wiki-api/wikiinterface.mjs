@@ -23,9 +23,9 @@ function reverse_trunc(str){
     const bstr=str
     const delim=bstr.slice(-1)
     if(delim[0] == "."){
-	return bstr.split(/[;}.\n]/).at(-2)+"."
+	return bstr.split(/[;}>.\n]/).at(-2)+"."
     }else{
-	return bstr.split(/[;}.\n]/).at(-1)+"."
+	return bstr.split(/[;}>.\n]/).at(-1)+"."
     }	
 }
 
@@ -107,13 +107,12 @@ export async function afetchWikipediaArticle(title,ncurrent_article) {
     ncurrent_article.wc=get_wordcount(bdata.source)
     ncurrent_article.title=title
     ncurrent_article.refs=get_references(bdata.source)
-    console.log(ncurrent_article.title);
+//    console.log(ncurrent_article.title);
     return "hi"
 }
 
 export async function bfetchWikipediaArticle(title,n){
     let x=await afetchWikipediaArticle(title,n);
-    console.log("MOO1");
     return n;
 }
 async function aafetchWikipediaArticle(title) {
@@ -122,8 +121,8 @@ async function aafetchWikipediaArticle(title) {
 
 export function fetchWikipediaArticle(title) {
     aafetchWikipediaArticle(title);
-    console.log(title);
-    console.log(current_article.title);
+//    console.log(title);
+//    console.log(current_article.title);
 }
 
 export function dumpWikiArticle() {
