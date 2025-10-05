@@ -12,7 +12,6 @@ const WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
 let acquiredTreasures = [];
 let currentRoomAcquiredTreasures = [];
 let playerIsStillEntering = false;
-let shouldPopulateTreasures = true;
 let entranceName = 'bassoon';
 let animationFrame;
 let maze;
@@ -25,6 +24,8 @@ let keyStatus = {}
 let playerGridX = 0, playerGridY = 0;
 let exitsAreOpen = false;
 let positionToLinkName = {}
+
+const shouldPopulateTreasures = () => !acquiredTreasures.find(entry => entry.room === title)
 
 start();
 
@@ -97,7 +98,6 @@ function loop()
     currentRoomAcquiredTreasures = [];
     entranceName = title;
     title = positionToLinkName[Math.floor(playerGridX)][Math.floor(playerGridY)];
-    shouldPopulateTreasures = true;
     clear();
     start();
     console.log(acquiredTreasures);
@@ -110,7 +110,6 @@ function loop()
       let temp = entranceName;
       title = entranceName;
       entranceName = temp;
-      shouldPopulateTreasures = false
       clear();
       start();
     }
@@ -220,7 +219,7 @@ function setupMaze(properties)
 
   createEntrance(usableBorderTiles);
   createExits(properties.links, usableBorderTiles);
-  if (shouldPopulateTreasures)
+  if (shouldPopulateTreasures())
     createTreasures(properties.treasures);
 }
 
