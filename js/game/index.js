@@ -9,6 +9,8 @@ const ctx = document.querySelector('canvas').getContext('2d');
 const CELL_WIDTH = 60, CELL_HEIGHT = 60;
 const WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
 
+let acquiredTreasures = [];
+let currentRoomAcquiredTreasures = [];
 let playerIsStillEntering = false;
 let shouldPopulateTreasures = true;
 let entranceName = 'bassoon';
@@ -20,7 +22,7 @@ let directionX = 0, directionY = 0;
 let windowX = 0, windowY = 0;
 let speed = 0.05;
 let keyStatus = {}
-let playerX = 0, playerY = 0;
+let playerGridX = 0, playerGridY = 0;
 let exitsAreOpen = false;
 let positionToLinkName = {}
 
@@ -79,20 +81,26 @@ function loop()
 
   setPlayerPosition();
 
-  if (isPlayerOnTreasure())
+  const treasureAcquired = isPlayerOnTreasure();
+  if (treasureAcquired)
   {
     score++;
+    currentRoomAcquiredTreasures.push(treasureAcquired)
     scoreParent.innerText = score;
-    maze[Math.floor(playerX)][Math.floor(playerY)].type = "space"
+    maze[Math.floor(playerGridX)][Math.floor(playerGridY)].type = "space"
   }
 
   if (isPlayerOnExit())
   {
+    const treasuresFromRoom = {room: title, treasures: currentRoomAcquiredTreasures.splice(0)};
+    acquiredTreasures.push(treasuresFromRoom);
+    currentRoomAcquiredTreasures = [];
     entranceName = title;
-    title = positionToLinkName[Math.floor(playerX)][Math.floor(playerY)];
+    title = positionToLinkName[Math.floor(playerGridX)][Math.floor(playerGridY)];
     shouldPopulateTreasures = true;
     clear();
     start();
+    console.log(acquiredTreasures);
   }
 
   if (isPlayerOnEntrance())
@@ -121,17 +129,20 @@ function loop()
 
 function isPlayerOnExit()
 {
-  return maze[Math.floor(Math.max(playerX, 0))][Math.floor(Math.max(playerY, 0))].type === 'exit';
+  return maze[Math.floor(Math.max(playerGridX, 0))][Math.floor(Math.max(playerGridY, 0))].type === 'exit';
 }
 
 function isPlayerOnTreasure()
 {
-  return maze[Math.floor(Math.max(playerX, 0))][Math.floor(Math.max(playerY, 0))].type === 'treasure';
+  return (
+    maze[Math.floor(Math.max(playerGridX, 0))][Math.floor(Math.max(playerGridY, 0))].type === 'treasure' ?
+      maze[Math.floor(Math.max(playerGridX, 0))][Math.floor(Math.max(playerGridY, 0))].name : false
+  );
 }
 
 function isPlayerOnEntrance()
 {
-  return maze[Math.floor(Math.max(playerX, 0))][Math.floor(Math.max(playerY, 0))].type === 'entrance';
+  return maze[Math.floor(Math.max(playerGridX, 0))][Math.floor(Math.max(playerGridY, 0))].type === 'entrance';
 }
 
 function processMouseClick(e)
@@ -152,7 +163,7 @@ function processMouseClick(e)
   }
   catch (e)
   {
-    console.error(e)
+    console.log(e)
   }
 }
 
@@ -165,25 +176,25 @@ function setPlayerPosition()
   if (keyStatus['s']) directionY++;
   if (keyStatus['d']) directionX++;
 
-  let newX = playerX + directionX * speed;
-  let newY = playerY + directionY * speed;
+  let newX = playerGridX + directionX * speed;
+  let newY = playerGridY + directionY * speed;
 
   // wall hit collision
 
   // if (directionX < 0 && (maze[Math.floor(newX)][Math.floor(newY)] === "wall"))
-  //   newX = playerX;
+  //   newX = playerGridX;
   // if (directionX > 0 && (maze[Math.floor(newX)][Math.floor(newY)] === "wall"))
-  //   newX = playerX;
+  //   newX = playerGridX;
   // if (directionY < 0 && maze[Math.floor(newX)][Math.floor(newY)] === "wall")
-  //   newY = playerY;
+  //   newY = playerGridY;
   // if (directionY > 0 && maze[Math.floor(newX)][Math.floor(newY)] === "wall")
-  //   newY = playerY;
+  //   newY = playerGridY;
 
-  playerX = newX;
-  playerY = newY;
+  playerGridX = newX;
+  playerGridY = newY;
 
-  windowX = playerX * CELL_WIDTH + CELL_WIDTH / 2 - WINDOW_WIDTH / 2;
-  windowY = playerY * CELL_HEIGHT + CELL_HEIGHT / 2 - WINDOW_HEIGHT / 2;
+  windowX = playerGridX * CELL_WIDTH + CELL_WIDTH / 2 - WINDOW_WIDTH / 2;
+  windowY = playerGridY * CELL_HEIGHT + CELL_HEIGHT / 2 - WINDOW_HEIGHT / 2;
 }
 
 function generateMazeProperties(articleProperties)
@@ -191,7 +202,7 @@ function generateMazeProperties(articleProperties)
   return {
     title: title,
     size: Math.max(articleProperties.wordCount / 400, 10),
-    simplicity: 1 / (Math.ceil(articleProperties.links.length) / 80),
+    simplicity: 1 / (Math.ceil(articleProperties.links.length) / 70),
     links: articleProperties.links.slice(0, Math.max(articleProperties.links.length / 10, 1)),
     treasures: articleProperties.citationsNeeded
   }
@@ -275,8 +286,8 @@ function createEntrance(usableBorderTiles)
 
   maze[pos.x][pos.y].type = "entrance";
 
-  playerX = pos.x;
-  playerY = pos.y;
+  playerGridX = pos.x;
+  playerGridY = pos.y;
 }
 
 function createExits(links, usableBorderTiles)
@@ -318,7 +329,7 @@ function render()
 
 function renderPlayer()
 {
-  renderCell(playerX, playerY, "blue");
+  renderCell(playerGridX, playerGridY, "blue");
 }
 
 function renderMaze()
