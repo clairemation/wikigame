@@ -10,6 +10,7 @@ const WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
 
 let animationFrame;
 let maze;
+let title = 'bassoon';
 let directionX = 0, directionY = 0;
 let windowX = 0, windowY = 0;
 let speed = 0.05;
@@ -27,16 +28,16 @@ function init()
 
 async function start()
 {
-  const articleProperties = await getArticleProperties("bassoon");
+  const articleProperties = await getArticleProperties(title);
   const mazeProperties = generateMazeProperties(articleProperties);
-  // const mazeProperties = {size: 20, simplicity: 0.6, links: ["one", "two", "three"]}
+  // const mazeProperties = {title: 'default', size: 20, simplicity: 0.6, links: ["one", "two", "three"]}
   setupMaze(mazeProperties);
 
   addEventListener("keydown", onKeyDown);
   addEventListener("keyup", onKeyUp);
   addEventListener("mousedown", processMouseClick);
 
-  roomTitleParent.innerText = "bassoon"
+  roomTitleParent.innerText = mazeProperties.title;
 
   animationFrame = requestAnimationFrame(loop);
 }
@@ -44,6 +45,9 @@ async function start()
 function clear()
 {
   cancelAnimationFrame(animationFrame);
+  directionX = 0;
+  directionY = 0;
+  keyStatus = {};
   removeEventListener("keydown", onKeyDown);
   removeEventListener("keyup", onKeyUp);
   removeEventListener("mousedown", processMouseClick);
@@ -65,13 +69,29 @@ function loop()
 {
   animationFrame = requestAnimationFrame(loop);
 
-  setPlayerDirection();
+  setPlayerPosition();
+
+  if (isPlayerOnExit())
+  {
+
+  }
 
   ctx.clearRect(windowX, windowY, WINDOW_WIDTH, WINDOW_HEIGHT);
 
   ctx.setTransform(1, 0, 0, 1, -windowX, -windowY);
   render();
 
+}
+
+function isPlayerOnExit()
+{
+  if (maze[Math.floor(Math.max(playerX, 0))][Math.floor(Math.max(playerY, 0))] === 'exit')
+  {
+    title = positionToLinkName[Math.floor(playerX)][Math.floor(playerY)];
+
+    clear();
+    start();
+  }
 }
 
 function processMouseClick(e)
@@ -85,7 +105,7 @@ function processMouseClick(e)
   }
 }
 
-function setPlayerDirection()
+function setPlayerPosition()
 {
   directionX = 0;
   directionY = 0;
@@ -118,6 +138,7 @@ function setPlayerDirection()
 function generateMazeProperties(articleProperties)
 {
   return {
+    title: title,
     size: articleProperties.wordCount / 100,
     simplicity: 1 / (articleProperties.wordCount / 3000),
     links: articleProperties.links.slice(0, articleProperties.links.length / 5),
@@ -237,9 +258,13 @@ function renderMaze()
     for (let j = 0; j < maze[i].length; j++) {
       if (maze[i][j] === "wall")
         renderCell(i, j, "green");
-      else if (maze[i][j] === "exit" && exitsAreOpen)
+      else if (maze[i][j] === "exit" && !exitsAreOpen)
       {
         renderCell(i, j, "yellow");
+      }
+      else if (maze[i][j] === "entrance")
+      {
+        renderCell(i, j, "black");
       }
     }
   }
