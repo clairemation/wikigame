@@ -119,13 +119,13 @@ function setPlayerPosition()
 
   // wall hit collision
 
-  // if (directionX < 0 && (maze[Math.floor(newY)][Math.floor(newX - 1)] === "wall"))
+  // if (directionX < 0 && (maze[Math.floor(newX)][Math.floor(newY)] === "wall"))
   //   newX = playerX;
-  // if (directionX > 0 && (maze[Math.floor(newY)][Math.floor(newX) + 1] === "wall"))
+  // if (directionX > 0 && (maze[Math.floor(newX)][Math.floor(newY)] === "wall"))
   //   newX = playerX;
-  // if (directionY < 0 && maze[Math.floor(newY - 1)][Math.floor(newX)] === "wall")
+  // if (directionY < 0 && maze[Math.floor(newX)][Math.floor(newY)] === "wall")
   //   newY = playerY;
-  // if (directionY > 0 && maze[Math.floor(newY + 1)][Math.floor(newX)] === "wall")
+  // if (directionY > 0 && maze[Math.floor(newX)][Math.floor(newY)] === "wall")
   //   newY = playerY;
 
   playerX = newX;
@@ -249,7 +249,7 @@ function render()
 
 function renderPlayer()
 {
-  renderCell(playerX, playerY, "red");
+  renderCell(playerX, playerY, "blue");
 }
 
 function renderMaze()
