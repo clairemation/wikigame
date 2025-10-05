@@ -42,21 +42,28 @@ function urlize(link){
     return "<a href=\"http://en.wikipedia.org/wiki/"+link+"\">"+link+"</a>";
 }
 
-async function checkArticleScore(name){
+export async function* checkArticleScore(name){
     await pullinPagestats(name,2,name);
     let xcites=[...new Set(cites)];
+    yield `<p><h1>Results</h1>`
     for(let i=0;i<xcites.length;i++){
-	let str = "Article "+urlize(xcites[i][1])+" has citation needed for: "+xcites[i][0]+"<br>";
+	let str = "Article "+urlize(xcites[i][1])+" has citation needed for: "+xcites[i][0]+"<p>";
 	console.log(str);
+    yield (str);
     }
     for(let i=0;i<clari.length;i++){
-	let str = "Article "+urlize(clari[i][1])+" has clarification needed for: "+clari[i][0]+"<br>";
+	let str = "Article "+urlize(clari[i][1])+" has clarification needed for: "+clari[i][0]+"<p>";
 	console.log(str);
+    yield (str);
     }
     for(let i=0;i<reds.length;i++){
-	let str = "Article "+urlize(reds[i][1])+" has RED LINK for: "+urlize(reds[i][0])+"<br>";
+	let str = "Article "+urlize(reds[i][1])+" has RED LINK for: "+urlize(reds[i][0])+"<p>";
 	console.log(str);
+    yield (str);
     }
+    let ostr = "<p>Final score is "+reds.length+"/"+clari.length+"/"+xcites.length;
+    console.log(ostr);
+    yield `Hello`;
 //    console.log(cites);
 }
 

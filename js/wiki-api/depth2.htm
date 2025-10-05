@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Score Stream with Input</title>
+</head>
+<body>
+
+    <h1>Article Score Checker</h1>
+
+    <label for="articleInput">Enter Article Text:</label>
+    <br>
+    <textarea id="articleInput" rows="6" cols="60" style="margin-bottom: 10px;">
+This is the input string for the article score check. The length and content of this text will be passed to the checkArticleScore function.
+    </textarea>
+    <br>
+    
+    <button id="checkButton">Check Article Score</button>
+    
+    <h2>Output Stream:</h2>
+    <div id="outputArea" style="border: 1px solid #ccc; padding: 10px; min-height: 150px; background-color: #f4f4f4;">
+        Enter text above and click the button to begin...
+    </div>
+
+    <script type="module">
+        // Import the function from the external module (depthchecker.mjs)
+        import { checkArticleScore } from './depthchecker.mjs';
+
+        const outputArea = document.getElementById('outputArea');
+        const checkButton = document.getElementById('checkButton');
+        // New: Get reference to the input textarea
+        const articleInput = document.getElementById('articleInput');
+
+        async function runCheck() {
+            // Get the current value from the textarea
+            const articleText = articleInput.value.trim();
+
+            if (!articleText) {
+                outputArea.innerHTML = 'Please enter some text to analyze.';
+                return;
+            }
+
+            outputArea.innerHTML = 'Processing started...\n';
+            checkButton.disabled = true;
+
+            try {
+                // Pass the dynamic input string to the function
+                const textStream = checkArticleScore(articleText);
+                
+                for await (const chunk of textStream) {
+                    outputArea.innerHTML += chunk;
+                }
+                
+                outputArea.innerHTML += '\n\n--- Process Complete ---';
+            } catch (error) {
+                outputArea.innerHTML += `\n\nERROR: ${error.message}`;
+            } finally {
+                checkButton.disabled = false;
+            }
+        }
+
+        checkButton.addEventListener('click', runCheck);
+    </script>
+
+</body>
+</html>
+
