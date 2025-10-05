@@ -44,13 +44,16 @@ function get_clarification_neededs(article){
 }
 
 function unbracket(l){
+    if(l.includes("|")){
+	return l.split("]]")[0].split("|")[0];
+    }
     return l.split("]]")[0];
-
 }
     
 function get_outgoing_links(article){
-    const spl=article.split("[[").slice(1)
-    const li=spl.map(unbracket)
+    const spl=article.split("[[").slice(1);
+     const   sspl=spl.filter(str=>!str.includes(":"));
+    const li=sspl.map(unbracket);
     return li
 }
 
@@ -78,9 +81,22 @@ function get_references(article){
     return spl.map(get_cite_title);
 }
 
+function is_redlink(article){
+    return article.includes("nonexistend-title");
+}
+
+function isnt_article(article){
+    return article.includes("REDIRECT");
+}
+
+
 export async function afetchWikipediaArticle(title) {
     const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title)
+    if(!b.ok) {current_article.is_redlink=true;return;}
+    current_article.is_redlink=false;
     const bdata= await b.json();
+    if (isnt_article(bdata.source)) return;
+
     current_article.cn=get_citation_neededs(bdata.source)
     current_article.cl=get_clarification_neededs(bdata.source)
     current_article.li=get_outgoing_links(bdata.source)
