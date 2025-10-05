@@ -2,25 +2,33 @@ import * as Wiki from './wikiinterface.mjs'
 
 let reds=[];
 let cites=[];
-let claris=[];
+let clari=[];
 let links=[];
 
-async function grr(a,b){
-    return await pullinPagestats(a,b);
+async function grr(a,b,c){
+    return await pullinPagestats(a,b,c);
 }
 
-async function pullinPagestats(name,depth){
+async function pullinPagestats(name,depth,parent){
     let mine={}
     mine = await Wiki.bfetchWikipediaArticle(name,mine);
+    if(mine.is_redlink){
+//	console.log("MOMOM");
+//	console.log("MOO"+parent);
+	reds.push([name,parent]);
+	return;
+    }
+	
     try{
-	console.log("MOO2");
 	let ncites=[...new Set(mine.cn)].map(ele=>[ele,name]);
 	cites.push(...ncites);
+	let nclari=[...new Set(mine.cl)].map(ele=>[ele,name]);
+	clari.push(...nclari);
 //	console.log(mine);
 	if (depth>0){
-	    console.log(depth);
+//	    console.log(depth);
 	    for (let i=0;i<10;i++){
-		let x=await grr(mine.li[i],depth-1)
+		let x=await grr(mine.li[i],depth-1,name)
 	    }
 	    
 //	    await mine.li.slice(0,10).forEach(x=>pullinPagestats(x,depth-1));
@@ -30,10 +38,26 @@ async function pullinPagestats(name,depth){
     return 1;
 }
 
-async function checkArticleScore(name){
-    await pullinPagestats(name,2);
-    console.log(cites);
-    console.log("MOO3");
+function urlize(link){
+    return "<a href=\"http://en.wikipedia.org/wiki/"+link+"\">"+link+"</a>";
 }
 
-await checkArticleScore("Bassoon");
+async function checkArticleScore(name){
+    await pullinPagestats(name,2,name);
+    let xcites=[...new Set(cites)];
+    for(let i=0;i<xcites.length;i++){
+	let str = "Article "+urlize(xcites[i][1])+" has citation needed for: "+xcites[i][0]+"<br>";
+	console.log(str);
+    }
+    for(let i=0;i<clari.length;i++){
+	let str = "Article "+urlize(clari[i][1])+" has clarification needed for: "+clari[i][0]+"<br>";
+	console.log(str);
+    }
+    for(let i=0;i<reds.length;i++){
+	let str = "Article "+urlize(reds[i][1])+" has RED LINK for: "+urlize(reds[i][0])+"<br>";
+	console.log(str);
+    }
+//    console.log(cites);
+}
+
+await checkArticleScore("List of New York City Designated Landmarks in Brooklyn");
