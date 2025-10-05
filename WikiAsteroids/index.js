@@ -88,6 +88,7 @@ export async function afetchWikipediaArticle(title,current_article) {
     const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title)
     console.log(b);
     if(!b.ok) {current_article.is_redlink=true;return;}
+    current_article.is_redlink=false;
     const bdata= await b.json();
     if (isnt_article(bdata.source)) return;
     current_article.cn=get_citation_neededs(bdata.source)
@@ -178,8 +179,9 @@ const GAME_CONFIG = {
   }
 };
 
-let myinit="Roberts";
+let myinit=0;
 let articles={}
+let articlenum=0;
 
 function iterateAsteroid(name,x,y){
     let count=10;
@@ -261,9 +263,11 @@ const WikiEventHandler = {
     const diff = data.length.new - data.length.old;
     const health = mapDiffToHealth(Math.abs(diff));
 
-      if(myinit=="Roberts"){
-	  let article="Bassoon"
-	  article="List of New York City Designated Landmarks in Brooklyn"
+      if(myinit==0){
+	  let allarticles=["List of New York City Designated Landmarks in Brooklyn","Bassoon","Majel Barrett","Marmite","Walt Whitman","Langston Hughes"]
+	  let article=allarticles[articlenum%allarticles.length];
+
+
 	  SpawnManager.spawnAsteroid(article, 10, {
 	      user: data.user || 'Unknown',
 	      diff_url: data.notify_url,
@@ -274,8 +278,10 @@ const WikiEventHandler = {
 	  });
 	  articles[article]= {};
 	  afetchWikipediaArticle(article,articles[article]);
-	  myinit="John";
+	  myinit=10;
+	  articlenum++;
       }
+      myinit--;
   }
 };
 
