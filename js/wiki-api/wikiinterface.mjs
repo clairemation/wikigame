@@ -115,6 +115,10 @@ export async function bfetchWikipediaArticle(title,n){
     let x=await afetchWikipediaArticle(title,n);
     return n;
 }
+export async function cfetchWikipediaArticle(title){
+    let x=await afetchWikipediaArticle(title,current_article);
+    return n;
+}
 async function aafetchWikipediaArticle(title) {
     const a=  afetchWikipediaArticle(title);
 }
