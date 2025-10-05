@@ -95,7 +95,7 @@ function isnt_article(article){
 
 
 export async function afetchWikipediaArticle(title,ncurrent_article) {
-    const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title)
+    const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title);
     if(!b.ok) {ncurrent_article.is_redlink=true;return;}
     ncurrent_article.is_redlink=false;
     const bdata= await b.json();
@@ -107,6 +107,22 @@ export async function afetchWikipediaArticle(title,ncurrent_article) {
     ncurrent_article.wc=get_wordcount(bdata.source)
     ncurrent_article.title=title
     ncurrent_article.refs=get_references(bdata.source)
+//    console.log(ncurrent_article.title);
+    return "hi"
+}
+export async function dfetchWikipediaArticle(title){
+    const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title);
+    if(!b.ok) {current_article.is_redlink=true;return;}
+    current_article.is_redlink=false;
+    const bdata= await b.json();
+    if (isnt_article(bdata.source)) return;
+
+    current_article.cn=get_citation_neededs(bdata.source)
+    current_article.cl=get_clarification_neededs(bdata.source)
+    current_article.li=get_outgoing_links(bdata.source)
+    current_article.wc=get_wordcount(bdata.source)
+    current_article.title=title
+    current_article.refs=get_references(bdata.source)
 //    console.log(ncurrent_article.title);
     return "hi"
 }
