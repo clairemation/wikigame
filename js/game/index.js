@@ -14,6 +14,7 @@ let speed = 0.05;
 let keyStatus = {}
 let playerX = 0, playerY = 0;
 let exitsAreOpen = false;
+let positionToLinkName = {}
 
 start();
 
@@ -26,7 +27,7 @@ async function start()
 
   // const articleProperties = await getArticleProperties("bassoon");
   // const mazeProperties = generateMazeProperties(articleProperties);
-  const mazeProperties = {size: 20, simplicity: 0.6, links: [{}, {}, {}, {}, {}]}
+  const mazeProperties = {size: 20, simplicity: 0.6, links: ["one", "two", "three"]}
   setupMaze(mazeProperties);
   requestAnimationFrame(loop);
 }
@@ -49,7 +50,10 @@ function processMouseClick(e)
   const clickGridPositionX = Math.floor((e.clientX + windowX) / CELL_WIDTH);
   const clickGridPositionY = Math.floor((e.clientY + windowY) / CELL_HEIGHT)
 
-  linkInfoParent.innerHTML = maze[clickGridPositionX][clickGridPositionY];
+  if (maze[clickGridPositionX][clickGridPositionY] === "exit")
+  {
+    linkInfoParent.innerHTML = positionToLinkName[clickGridPositionX][clickGridPositionY];
+  }
 }
 
 function setPlayerDirection()
@@ -177,11 +181,15 @@ function createExits(links, usableBorderTiles)
   {
     const index = Math.max(0, Math.floor(Math.random() * usableBorderTiles.length - 1));
 
-    usableBorderTiles.splice(index, 1);
-
     const pos = usableBorderTiles[index];
 
+    usableBorderTiles.splice(index, 1);
+
     maze[pos.x][pos.y] = "exit";
+
+    if (!positionToLinkName[pos.x])
+      positionToLinkName[pos.x] = []
+    positionToLinkName[pos.x][pos.y] = links[i];
   }
 }
 
