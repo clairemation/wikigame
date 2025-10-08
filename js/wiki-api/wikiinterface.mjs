@@ -96,10 +96,10 @@ function isnt_article(article){
 
 export async function afetchWikipediaArticle(title,ncurrent_article) {
     const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title);
-    if(!b.ok) {ncurrent_article.is_redlink=true;return;}
+    if(!b.ok) {ncurrent_article.is_redlink=true;return true;}
     ncurrent_article.is_redlink=false;
     const bdata= await b.json();
-    if (isnt_article(bdata.source)) return;
+    if (isnt_article(bdata.source)) return true;
 
     ncurrent_article.cn=get_citation_neededs(bdata.source)
     ncurrent_article.cl=get_clarification_neededs(bdata.source)
@@ -108,8 +108,9 @@ export async function afetchWikipediaArticle(title,ncurrent_article) {
     ncurrent_article.title=title
     ncurrent_article.refs=get_references(bdata.source)
 //    console.log(ncurrent_article.title);
-    return "hi"
+    return false
 }
+
 export async function dfetchWikipediaArticle(title){
     const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title);
     if(!b.ok) {current_article.is_redlink=true;return;}
@@ -123,7 +124,7 @@ export async function dfetchWikipediaArticle(title){
     current_article.wc=get_wordcount(bdata.source)
     current_article.title=title
     current_article.refs=get_references(bdata.source)
-//    console.log(ncurrent_article.title);
+    console.log(ncurrent_article.title);
     return "hi"
 }
 
@@ -141,7 +142,7 @@ async function aafetchWikipediaArticle(title) {
 
 export function fetchWikipediaArticle(title) {
     aafetchWikipediaArticle(title);
-//    console.log(title);
+    console.log(title);
 //    console.log(current_article.title);
 }
 
@@ -163,6 +164,110 @@ export function loadWikiArticle(name) {
     const f= fetchWikipediaArticle(name)
 }
 
+export class WikiArticle{
+    constructor(name,parent){
+	this.name=name;
+	this.article={};
+	this.type="deadlink"
+	this.parent=parent;
+	this.treasures=[]
+    }
+
+    isRedlink(){return this.article.is_redlink};
+
+    async init(){
+	this.article={};
+	if (await afetchWikipediaArticle(this.name,this.article)){
+	    if(this.isRedlink()) this.type="redlink";
+	    return;
+	}
+	this.type="article"
+	console.log("hj")
+//	console.log(this.article)
+	//	this.cns=this.article.cn.map(x=>{textx})
+	this.treasures.push(...this.article.cn.map((x)=>({type:"citation needed",text:x,parent:this.parent})))
+	this.treasures.push(...this.article.cl.map((x)=>({type:"clarification needed",text:x,parent:this.parent})))
+	console.log(this.treasures);
+//	console.log(this.article.cn)
+//	console.log(this.article.title)
+//	console.log(this.cns)
+	return true;
+    }
+
+    getTreasures(){
+	console.log(this.treasures);
+	return this.treasures;
+    }
+}
+
+function urlize(link,html){
+    if(html) return "<a href=\"http://en.wikipedia.org/wiki/"+link+"\">"+link+"</a>";
+    return link
+}
+
+// members: output_html, conventional_score
+export class WikiGame{
+    constructor(){
+	this.score=0;
+	this.redlinks=[];
+	this.articles=[];
+	this.clari=[];
+	this.links=[];
+	this.cites=[];
+	this.treasure_pile=[];
+    }
+
+
+    
+    addItemToScore(item){
+	this.treasure_pile.push(item);
+    }
+
+    ScoreSingleItem(item){
+	if(item.type=="redlink"){
+	    this.score+=100;
+	    this.redlinks.push([item.name,item.parent]);   
+	}
+	if(item.type=="citation needed"){
+	    this.score+=10;
+	}
+    }
+    
+    calculateScore(){
+	this.treasure_pile.forEach(x=>this.ScoreSingleItem(x))
+    }
+
+    returnSingleTextScore(treasure,html){
+	let str=""
+
+	switch(treasure.type){
+	case "redlink":
+	    if(0&&html){
+		
+	    }else{
+		str+="Article "+urlize(treasure.parent,html)+" has redlink of " +urlize(treasure.name,html)+"\n"
+	    }
+	case "citation needed":
+	case "clarification needed":
+	    if(0&&html){
+	    }else{
+		str+="Article "+urlize(treasure.parent,html)+" has "+treasure.type+" of " +treasure.text+"\n"
+	    }
+	    
+	}
+	return str
+    }
+    
+    returnFullTextScore(html_mode){
+	let totstr=""
+
+	this.treasure_pile.forEach(x=>totstr+=this.returnSingleTextScore(x,html_mode))
+	return totstr;
+    }
+
+    getTotalScore(){return this.score;}
+    
+}
 
 //console.log('asdf');
 //await afetchWikipediaArticle("Bassoon");
