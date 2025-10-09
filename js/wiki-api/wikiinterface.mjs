@@ -94,6 +94,19 @@ function isnt_article(article){
 }
 
 
+function get_paragraphs(article){
+    let a = article.replace(/<(\w+)\b[^>]*>.*?<\/\1>/gs, ' ');
+    let b = a.replace(/={2,}.*?={2,}/gs, ' ');
+    let c = b.replace(/\{\{.*?\}\}/gs, ' ');
+    let d = c.replace(/\*.*?\n/gs, ' ');
+    let e = d.replace(/\[\[.*?\]\]/gs, ' ');
+    let f = e.replace(/\{\|.*?\|\}/gs, ' ');
+    let z= f;
+
+    console.log(z)
+
+}
+
 export async function afetchWikipediaArticle(title,ncurrent_article) {
     const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title);
     if(!b.ok) {ncurrent_article.is_redlink=true;return true;}
@@ -107,6 +120,7 @@ export async function afetchWikipediaArticle(title,ncurrent_article) {
     ncurrent_article.wc=get_wordcount(bdata.source)
     ncurrent_article.title=title
     ncurrent_article.refs=get_references(bdata.source)
+    ncurrent_article.articletext=get_paragraphs(bdata.source)
 //    console.log(ncurrent_article.title);
     return false
 }
