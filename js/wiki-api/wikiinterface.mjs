@@ -252,12 +252,14 @@ export class WikiGame{
 	    }else{
 		str+="Article "+urlize(treasure.parent,html)+" has redlink of " +urlize(treasure.name,html)+"\n"
 	    }
+	    break;
 	case "citation needed":
 	case "clarification needed":
 	    if(0&&html){
 	    }else{
 		str+="Article "+urlize(treasure.parent,html)+" has "+treasure.type+" of " +treasure.text+"\n"
 	    }
+	    break;
 	    
 	}
 	return str
