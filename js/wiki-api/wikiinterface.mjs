@@ -215,7 +215,6 @@ function urlize(link,html){
 export class WikiGame{
     constructor(){
 	this.score=0;
-	this.redlinks=[];
 	this.articles=[];
 	this.clari=[];
 	this.links=[];
@@ -233,7 +232,6 @@ export class WikiGame{
     ScoreSingleItem(item){
 	if(item.type=="redlink"){
 	    this.score+=100;
-	    this.redlinks.push([item.name,item.parent]);   
 	}
 	if(item.type=="citation needed"){
 	    this.score+=10;
