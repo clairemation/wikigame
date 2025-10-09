@@ -95,7 +95,6 @@ function isnt_article(article){
 
 
 export async function afetchWikipediaArticle(title,ncurrent_article) {
-    console.log("hi")
     const b= await fetch(`https://en.wikipedia.org/w/rest.php/v1/page/`+title);
     if(!b.ok) {ncurrent_article.is_redlink=true;return true;}
     ncurrent_article.is_redlink=false;
@@ -124,7 +123,7 @@ export async function dfetchWikipediaArticle(title){
     current_article.wc=get_wordcount(bdata.source)
     current_article.title=title
     current_article.refs=get_references(bdata.source)
-    console.log(ncurrent_article.title);
+//    console.log(ncurrent_article.title);
     return "hi"
 }
 
@@ -142,7 +141,7 @@ async function aafetchWikipediaArticle(title) {
 
 export function fetchWikipediaArticle(title) {
     aafetchWikipediaArticle(title);
-    console.log(title);
+//    console.log(title);
 //    console.log(current_article.title);
 }
 
@@ -175,6 +174,10 @@ export class WikiArticle{
     }
 
     isRedlink(){return this.article.is_redlink};
+    seemsBroke(){
+	if (!this.article.title) return true
+	return false
+    }
 
     async init(){
 	this.article={};
@@ -183,12 +186,12 @@ export class WikiArticle{
 	    return;
 	}
 	this.type="article"
-	console.log("hj")
+//	console.log("hj")
 //	console.log(this.article)
 	//	this.cns=this.article.cn.map(x=>{textx})
 	this.treasures.push(...this.article.cn.map((x)=>({type:"citation needed",text:x,parent:this.parent})))
 	this.treasures.push(...this.article.cl.map((x)=>({type:"clarification needed",text:x,parent:this.parent})))
-	console.log(this.treasures);
+//	console.log(this.treasures);
 //	console.log(this.article.cn)
 //	console.log(this.article.title)
 //	console.log(this.cns)
@@ -196,8 +199,10 @@ export class WikiArticle{
     }
 
     getTreasures(){
-	console.log(this.treasures);
 	return this.treasures;
+    }
+    getLinks(){
+	return this.article.li;
     }
 }
 

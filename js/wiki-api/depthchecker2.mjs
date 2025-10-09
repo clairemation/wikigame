@@ -7,33 +7,22 @@ async function grr(a,b,c){
 }
 
 async function pullinPagestats(name,depth,parent){
-    let mine={}
     let article=new Wiki.WikiArticle(name,parent);
     let r = await article.init();
-    mine = article.article;
     game.addItemToScore(article);
     if(article.isRedlink()){
 	return;
     }
-	
+    if(article.seemsBroke()) return;
+    
 	article.getTreasures().forEach(x=>game.addItemToScore(x));
 	if (depth>0){
-	    try{
-		for (let i=0;i<10;i++){
-		console.log(i)
-		console.log(name)
-		console.log(mine)
-		let x=await grr(mine.li[i],depth-1,name)
-		}
-	    }catch{
+	    for (let i=0;i<10;i++){
+		let x=await grr(article.getLinks()[i],depth-1,name)
 	    }
 	    
 	}
     return 1;
-}
-
-function urlize(link){
-    return "<a href=\"http://en.wikipedia.org/wiki/"+link+"\">"+link+"</a>";
 }
 
 export async function rcheckArticleScore(name){
@@ -41,7 +30,7 @@ export async function rcheckArticleScore(name){
     await pullinPagestats(name,2,name);
 
     game.calculateScore()
-    console.log(game.returnFullTextScore(true))
+    console.log(game.returnFullTextScore(false))
     return retval
 }
 
