@@ -27,7 +27,7 @@ async function pullinPagestats(name,depth,parent){
 
 export async function rcheckArticleScore(name){
     let retval=""
-    await pullinPagestats(name,2,name);
+    await pullinPagestats(name,4,name);
 
     game.calculateScore()
     console.log(game.returnFullTextScore(false))
