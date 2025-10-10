@@ -132,11 +132,10 @@ function removeNestedBraces(text,open,close) {
 function get_paragraphs(article){
     let a = article.replace(/<(\w+)\b[^>]*>.*?<\/\1>/gs, ' ');
     let b = a.replace(/={2,}.*?={2,}/gs, ' ');
-    let c = b.replace(/\{\{.*?\}\}/gs, ' ');
     let c = removeNestedBraces(b,"{{","}}");
-    let d = c.replace(/\*.*?\n/gs, ' ');
-    let e = d.replace(/\[\[.*?\]\]/gs, ' ');
-    let f = e.replace(/\{\|.*?\|\}/gs, ' ');
+    let d = removeNestedBraces(c,"{|","|}");
+    let e = removeNestedBraces(d,"[[","]]");
+    let f = e.replace(/\*.*?\n/gs, ' ');
     let z= f;
 
     console.log(z)
