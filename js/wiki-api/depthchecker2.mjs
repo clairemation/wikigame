@@ -25,18 +25,63 @@ async function pullinPagestats(name,depth,parent){
     return 1;
 }
 
+function proctreas(x){
+    let ret=""
+    game.addItemToScore(x);
+    ret+=game.returnSingleTextScore(x,true);
+    return ret;
+}
+
+
+
+async function enterArt(name,parent){
+    let article=new Wiki.WikiArticle(name,parent);
+    let r = await article.init();
+    let retstr=""
+
+    game.addItemToScore(article);
+    if(article.seemsBroke()) return "Error";
+    if(article.isRedlink()){
+	return  "Red link";
+    }
+    article.getTreasures().forEach(x=>retstr+=proctreas(x));
+    retstr+="<h1>Exits:</h1>"
+retstr+=        "<div id=quick-input-buttons>"
+	retstr+="<button class=input-option data-text=\"GO HOME\">GO HOME</button>"
+    for (let i=0;i<10;i++){
+	let n=article.getLinks()[i]
+	retstr+="<button class=input-option data-text=\""+n+"\">"+n+"</button>"
+//	retstr+=article.getLinks()[i];
+    }
+retstr+="</div>"
+    return retstr;
+    
+}
+
 export async function rcheckArticleScore(name){
     let retval=""
-    await pullinPagestats(name,0,name);
+    await pullinPagestats(name,1,name);
 
     game.calculateScore()
-    console.log(game.returnFullTextScore(false))
+    retval=game.returnFullTextScore(true)
     return retval
 }
 
 export async function* checkArticleScore(name){
-    yield(rcheckArticleScore(name));
+    let t= await rcheckArticleScore(name);
+    yield t;
+}
+
+export async function* enterArticle(name){
+    if(name=="GO HOME"){
+	game.calculateScore()
+	let l=game.returnFullTextScore(true)
+	yield l
+    }else{
+	let t= await enterArt(name,name);
+	yield t;
+    }
 }
 
 
-rcheckArticleScore("List of New York City Designated Landmarks in Brooklyn");
+//rcheckArticleScore("List of New York City Designated Landmarks in Brooklyn");

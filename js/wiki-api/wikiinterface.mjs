@@ -138,7 +138,7 @@ function get_paragraphs(article){
     let f = e.replace(/\*.*?\n/gs, ' ');
     let z= f;
 
-    console.log(z)
+    //    console.log(z)
 
 }
 
@@ -300,6 +300,7 @@ export class WikiGame{
 		
 	    }else{
 		str+="Article "+urlize(treasure.parent,html)+" has redlink of " +urlize(treasure.name,html)+"\n"
+		if(html) str+="<br>";
 	    }
 	    break;
 	case "citation needed":
@@ -307,6 +308,7 @@ export class WikiGame{
 	    if(0&&html){
 	    }else{
 		str+="Article "+urlize(treasure.parent,html)+" has "+treasure.type+" of " +treasure.text+"\n"
+		if(html) str+="<br>";
 	    }
 	    break;
 	    

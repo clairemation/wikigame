@@ -25,7 +25,7 @@ This is the input string for the article score check. The length and content of 
 
     <script type="module">
         // Import the function from the external module (depthchecker.mjs)
-        import { checkArticleScore } from './depthchecker.mjs';
+        import { enterArticle } from './depthchecker2.mjs';
 
         const outputArea = document.getElementById('outputArea');
         const checkButton = document.getElementById('checkButton');
@@ -41,12 +41,12 @@ This is the input string for the article score check. The length and content of 
                 return;
             }
 
-            outputArea.innerHTML = 'Processing started...\n';
+            outputArea.innerHTML = 'Processing started...<br>\n';
             checkButton.disabled = true;
 
             try {
                 // Pass the dynamic input string to the function
-                const textStream = checkArticleScore(articleText);
+                const textStream = enterArticle(articleText);
                 
                 for await (const chunk of textStream) {
                     outputArea.innerHTML += chunk;
@@ -61,6 +61,24 @@ This is the input string for the article score check. The length and content of 
         }
 
         checkButton.addEventListener('click', runCheck);
+
+	// 👇 NEW: Listener for the output area to handle dynamically created buttons
+	outputArea.addEventListener('click', (event) => {
+        const clickedElement = event.target;
+	
+        // Check if the clicked element has the class 'input-option'
+        if (clickedElement.classList.contains('input-option')) {
+            const newText = clickedElement.getAttribute('data-text');
+            
+            // 1. Update the input area with the new text
+            articleInput.value = newText;
+            
+            // 2. Clear output area and run the check with the new text
+            outputArea.innerHTML = '';
+            runCheck(newText);
+        }
+    });
+
     </script>
 
 </body>
