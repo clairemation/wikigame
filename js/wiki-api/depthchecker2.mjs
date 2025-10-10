@@ -33,31 +33,6 @@ function proctreas(x){
 }
 
 
-
-async function enterArt(name,parent){
-    let article=new Wiki.WikiArticle(name,parent);
-    let r = await article.init();
-    let retstr=""
-
-    game.addItemToScore(article);
-    if(article.seemsBroke()) return "Error";
-    if(article.isRedlink()){
-	return  "Red link";
-    }
-    article.getTreasures().forEach(x=>retstr+=proctreas(x));
-    retstr+="<h1>Exits:</h1>"
-retstr+=        "<div id=quick-input-buttons>"
-	retstr+="<button class=input-option data-text=\"GO HOME\">GO HOME</button>"
-    for (let i=0;i<10;i++){
-	let n=article.getLinks()[i]
-	retstr+="<button class=input-option data-text=\""+n+"\">"+n+"</button>"
-//	retstr+=article.getLinks()[i];
-    }
-retstr+="</div>"
-    return retstr;
-    
-}
-
 export async function rcheckArticleScore(name){
     let retval=""
     await pullinPagestats(name,1,name);
@@ -72,13 +47,54 @@ export async function* checkArticleScore(name){
     yield t;
 }
 
+
+//BEGIN TEXT ADVENTURE
+// code to enter an] wiki article
+async function enterArt(name,parent){
+    let article=new Wiki.WikiArticle(name,parent);
+    let r = await article.init();
+    let retstr=""
+
+    game.addItemToScore(article);
+    if(article.isRedlink()){
+	return  "Red link";
+    }
+    if(article.seemsBroke()) return "Error";
+
+    //print out the treasures in the current room
+    article.getTreasures().forEach(x=>retstr+=proctreas(x));
+
+    //print out the links as buttons
+    retstr+="<h1>Exits:</h1>"
+retstr+=        "<div id=quick-input-buttons>"
+	retstr+="<button class=input-option data-text=\"GO HOME\">GO HOME</button>"
+    for (let i=0;i<10;i++){
+	let n=article.getLinks()[i]
+	retstr+="<button class=input-option data-text=\""+n+"#"+name+"\">"+n+"</button>"
+//	retstr+=article.getLinks()[i];
+    }
+retstr+="</div>"
+    return retstr;
+    
+}
+
 export async function* enterArticle(name){
     if(name=="GO HOME"){
+	//on exit print the total score
 	game.calculateScore()
 	let l=game.returnFullTextScore(true)
 	yield l
     }else{
-	let t= await enterArt(name,name);
+	let s=name.split("#")
+	if(s[1]){
+	    parent=s[1]
+	    name=s[0]
+	}else{
+	    parent=s[0]
+	    name=s[0]
+	}
+	
+	let t= await enterArt(name,parent);
 	yield t;
     }
 }
