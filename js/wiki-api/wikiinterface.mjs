@@ -1,4 +1,6 @@
+
 const current_article = {
+   
     li :[],
     cn :[],
     cl :[],
@@ -94,10 +96,44 @@ function isnt_article(article){
 }
 
 
+function removeNestedBraces(text,open,close) {
+    let result = '';
+    let nestingLevel = 0;
+    let i = 0;
+
+
+    while (i < text.length) {
+        // Check for opening braces: {{
+        if (text.substring(i, i + open.length) === open) {
+            nestingLevel++;
+            i += 2; // Move past the '{{'
+        } 
+        // Check for closing braces: }}
+        else if (text.substring(i, i + close.length) === close) {
+            // Only decrement if we are currently inside a block
+            if (nestingLevel > 0) {
+                nestingLevel--;
+            }
+            i += 2; // Move past the '}}'
+        }
+        // Append characters only if outside all nested blocks
+        else {
+            if (nestingLevel === 0) {
+                result += text[i];
+            }
+            i++; // Move to the next character
+        }
+    }
+
+    return result;
+}
+
+
 function get_paragraphs(article){
     let a = article.replace(/<(\w+)\b[^>]*>.*?<\/\1>/gs, ' ');
     let b = a.replace(/={2,}.*?={2,}/gs, ' ');
     let c = b.replace(/\{\{.*?\}\}/gs, ' ');
+    let c = removeNestedBraces(b,"{{","}}");
     let d = c.replace(/\*.*?\n/gs, ' ');
     let e = d.replace(/\[\[.*?\]\]/gs, ' ');
     let f = e.replace(/\{\|.*?\|\}/gs, ' ');
