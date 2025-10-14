@@ -250,6 +250,7 @@ body {
   color: #fff;
   font-family: sans-serif;
   font-size: 2em;
+  display: flex;
 }
 
 h1 {
@@ -261,6 +262,7 @@ h1 {
 canvas {
   background: #fff;
   image-rendering: pixelated;
+  display: flex;
   /*width: 100%;*/
 }
 

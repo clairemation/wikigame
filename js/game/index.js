@@ -170,38 +170,62 @@ function setPlayerPosition()
   if (keyStatus['s']) directionY++;
   if (keyStatus['d']) directionX++;
 
-  let newX = playerGridX + directionX * speed;
-  let newY = playerGridY + directionY * speed;
+  let velocityX = directionX * speed;
+  let velocityY = directionY * speed;
 
-  // wall hit collision
+  let checkPoints = {
+    upperLeft: {x: playerGridX + velocityX + 0.2, y: playerGridY +  velocityY + 0.2},
+    upperRight: {x: playerGridX + velocityX + 0.8, y: playerGridY + velocityY + 0.2},
+    lowerRight: {x: playerGridX + velocityX + 0.8, y: playerGridY + velocityY + 0.8},
+    lowerLeft: {x: playerGridX + velocityX + 0.2, y: playerGridY + velocityY + 0.8},
+  }
 
-  // if (directionX < 0 && (maze[Math.floor(playerGridX - 1)][Math.floor(playerGridY)].type === "wall"))
-  // {
-  //   console.log("left")
-  //   newX = playerGridX;
-  // }
-  // if (directionX > 0 && (maze[Math.floor(playerGridX + 1)][Math.floor(playerGridY)].type === "wall"))
-  // {
-  //   console.log("right")
-  //   newX = playerGridX;
-  // }
-  // if (directionY < 0 && maze[Math.floor(playerGridX)][Math.floor(playerGridY - 1)].type === "wall")
-  // {
-  //   console.log("up")
-  //   newY = playerGridY;
-  // }
-  //
-  // if (directionY > 0 && maze[Math.floor(playerGridX)][Math.floor(playerGridY + 1)].type === "wall")
-  // {
-  //   console.log("down")
-  //   newY = playerGridY;
-  // }
+  if (velocityX < 0)
+  {
+    if (checkForWall(checkPoints.upperLeft) || checkForWall(checkPoints.lowerLeft))
+    {
+      velocityX = 0;
+    }
+  }
 
-  playerGridX = newX;
-  playerGridY = newY;
+  else if (velocityX > 0)
+  {
+    if (checkForWall(checkPoints.upperRight) || checkForWall(checkPoints.lowerRight))
+    {
+      velocityX = 0;
+    }
+  }
+
+  if (velocityY < 0)
+  {
+    if (checkForWall(checkPoints.upperLeft) || checkForWall(checkPoints.upperRight))
+    {
+      velocityY = 0;
+    }
+  }
+
+  else if (velocityY > 0)
+  {
+    if (checkForWall(checkPoints.lowerLeft) || checkForWall(checkPoints.lowerRight))
+    {
+      velocityY = 0;
+    }
+  }
+
+
+  playerGridX += velocityX;
+  playerGridY += velocityY;
 
   windowX = playerGridX * CELL_WIDTH + CELL_WIDTH / 2 - WINDOW_WIDTH / 2;
   windowY = playerGridY * CELL_HEIGHT + CELL_HEIGHT / 2 - WINDOW_HEIGHT / 2;
+}
+
+function checkForWall(positionVector)
+{
+  console.log(positionVector);
+  return positionVector.x < 0 || positionVector.x >= maze.length
+    || positionVector.y < 0 || positionVector.y >= maze.length
+    || maze[Math.floor(positionVector.x)][Math.floor(positionVector.y)].type === "wall";
 }
 
 function generateMazeProperties(articleProperties)
@@ -233,8 +257,6 @@ function setupMaze(properties)
 
 function openUpMaze(simplicity)
 {
-
-
   for (let i = 0 ; i < maze.length ; i++)
   {
     for (let j = 0 ; j < maze[i].length ; j++)
@@ -336,6 +358,7 @@ function render()
 
 function renderPlayer()
 {
+  // renderCell(playerGridX, playerGridY, "blue");
   renderPlayerCell(playerGridX, playerGridY, "blue");
 }
 
