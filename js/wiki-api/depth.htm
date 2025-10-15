@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Score Stream</title>
+</head>
+<body>
+
+    <h1>Article Score Checker</h1>
+    <button id="checkButton">Check Article Score</button>
+    
+    <h2>Output Stream:</h2>
+    <pre id="outputArea" style="border: 1px solid #ccc; padding: 10px; min-height: 150px; background-color: #f4f4f4;">
+        Click 'Check Article Score' to begin...
+    </pre>
+
+    <script type="module">
+        // 1. Import the function from the external module
+        import { checkArticleScore } from './depthchecker.mjs';
+
+        const outputArea = document.getElementById('outputArea');
+        const checkButton = document.getElementById('checkButton');
+        const articleText = "A complex analysis of data structure and algorithmic efficiency...";
+
+        async function runCheck() {
+            outputArea.textContent = 'Processing started...\n';
+            checkButton.disabled = true;
+
+            try {
+                // 2. Call the function (which returns an Async Generator)
+                const textStream = checkArticleScore(articleText);
+                
+                // 3. Iterate over the stream using 'for await...of'
+                for await (const chunk of textStream) {
+                    // Append each yielded chunk to the output area
+                    outputArea.textContent += chunk;
+                }
+                
+                outputArea.textContent += '\n\n--- Process Complete ---';
+            } catch (error) {
+                outputArea.textContent += `\n\nERROR: ${error.message}`;
+            } finally {
+                checkButton.disabled = false;
+            }
+        }
+
+        checkButton.addEventListener('click', runCheck);
+    </script>
+
+</body>
+</html>
