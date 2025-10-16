@@ -6,6 +6,8 @@ import processKeyInput from "./process-key-input";
 import checkPlayerPositionForTreasure from "./check-player-position-for-treasure";
 import createNewGameState from "./create-new-game-state";
 import setupRoom from "./setup-room";
+import checkPlayerPositionForExit from "./check-player-position-for-exit";
+import checkPlayerPositionForEntrance from "./check-player-position-for-entrance";
 
 let animationFrame;
 
@@ -46,49 +48,20 @@ async function loop(gameState)
 {
   const mouseUpdates = processMouseInput(gameState);
   const keyUpdates = processKeyInput(gameState);
-  const treasuresUpdates = checkPlayerPositionForTreasure(gameState);
+  const positionUpdates = checkPlayerPositionForTreasure(gameState)
+    || await checkPlayerPositionForExit(gameState)
+    || await checkPlayerPositionForEntrance(gameState);
 
   const gameStateUpdates =
     {
     ...mouseUpdates,
     ...keyUpdates,
-    ...treasuresUpdates,
+    ...positionUpdates
   };
 
-  const {playerIsOnExit, exitTitle} = isPlayerOnExit(gameState);
-  if (playerIsOnExit)
-  {
-    if (gameState.currentRoomAcquiredTreasures.length > 0) {
-      gameStateUpdates.acquiredTreasures = [...gameState.acquiredTreasures, {room: gameState.title, treasures: gameState.currentRoomAcquiredTreasures}];
-    }
 
-    gameStateUpdates.currentRoomAcquiredTreasures = [];
-    gameStateUpdates.entranceName = gameState.title;
-    gameStateUpdates.title = exitTitle;
 
-    const newGameState = createNewGameState(gameState, gameStateUpdates);
 
-    const newRoomGameState = await setupRoom(newGameState);
-    return;
-  }
-
-  if (isPlayerOnEntrance(gameState))
-  {
-    if (!gameState.playerIsStillEntering)
-    {
-      gameStateUpdates.title = gameState.entranceName;
-      gameStateUpdates.entranceName = gameState.entranceName;
-
-      const newGameState = createNewGameState(gameState, gameStateUpdates);
-      // stopAndClear();
-      setupRoom(newGameState);
-      return;
-    }
-  }
-  else
-  {
-    gameStateUpdates.playerIsStillEntering = false;
-  }
 
   const newGameState = createNewGameState(gameState, gameStateUpdates);
 
@@ -96,17 +69,8 @@ async function loop(gameState)
   animationFrame = requestAnimationFrame(() => loop(newGameState));
 }
 
-function isPlayerOnExit(gameState)
-{
-  const cell = gameState.maze[Math.floor(Math.max(gameState.playerGridX, 0))][Math.floor(Math.max(gameState.playerGridY, 0))];
-  const playerIsOnExit = cell.type === "exit"
-  const exitTitle = cell.title;
-  return {playerIsOnExit, exitTitle};
-}
 
-function isPlayerOnEntrance(gameState)
-{
-  return gameState.maze[Math.floor(Math.max(gameState.playerGridX, 0))][Math.floor(Math.max(gameState.playerGridY, 0))].type === 'entrance';
-}
+
+
 
 export default function main() {}
