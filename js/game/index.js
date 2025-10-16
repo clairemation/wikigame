@@ -26,7 +26,7 @@ start();
 
 function start()
 {
-  const gameState = {
+  const gameStateProperties = {
     acquiredTreasures: [],
     currentRoomAcquiredTreasures: [],
     playerIsStillEntering: false,
@@ -41,7 +41,7 @@ function start()
     playerGridY: 0,
   }
 
-  Object.freeze(gameState);
+  const gameState = createNewGameState({}, gameStateProperties);
 
   startRoom(gameState);
 }
@@ -88,7 +88,7 @@ async function startRoom(gameState)
   addEventListener("keyup", onKeyUp);
   addEventListener("mousedown", processMouseClick);
 
-  roomTitleParent.innerText = mazeProperties.title;
+  roomTitleParent.innerText = newGameState.title;
 }
 
 function stopAndClear()
@@ -110,16 +110,6 @@ function onKeyDown(e)
 function onKeyUp(e)
 {
   keyStatus[e.key] = false;
-}
-
-function backtrackIntoEntrance(gameState) {
-  let gameStateUpdates = {}
-  gameStateUpdates.title = gameState.entranceName;
-  gameStateUpdates.entranceName = gameState.entranceName;
-
-  const newState = createNewGameState(gameState, gameStateUpdates);
-  stopAndClear();
-  startRoom(gameState);
 }
 
 function loop(gameState)

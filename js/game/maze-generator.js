@@ -81,7 +81,7 @@ function createEntranceInPlace(maze, usableBorderTiles)
 
 function createExitsInPlace(maze, links, usableBorderTiles)
 {
-  for (let i = 0 ; i < links.length ; i++)
+  for (let i = 0 ; i < links.length && i < usableBorderTiles.length ; i++)
   {
     const index = Math.max(0, Math.floor(Math.random() * usableBorderTiles.length - 1));
 
