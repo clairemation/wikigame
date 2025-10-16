@@ -17,6 +17,8 @@ export function getLinks(){return current_article.li;}
 
 export function getCitationsNeeded(){return current_article.cn;}
 
+export function getClarificationsNeeded() {return current_article.cl;}
+
 
 function reverse_trunc(str){
   const bstr=str

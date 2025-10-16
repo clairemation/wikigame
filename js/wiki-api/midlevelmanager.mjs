@@ -7,5 +7,6 @@ export async function getArticleProperties(articleName) {
     wordCount: Wiki.getWordCount(),
     links: Wiki.getLinks(),
     citationsNeeded: Wiki.getCitationsNeeded(),
+    clarificationsNeeded: Wiki.getClarificationsNeeded()
   }
 }
