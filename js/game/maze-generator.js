@@ -91,10 +91,6 @@ function createExitsInPlace(maze, links, usableBorderTiles)
 
     maze[pos.x][pos.y].type = "exit";
     maze[pos.x][pos.y].title = links[i];
-
-    // if (!gameState.positionToLinkName[pos.x])
-    //   gameState.positionToLinkName[pos.x] = []
-    // gameState.positionToLinkName[pos.x][pos.y] = links[i];
   }
 }
 

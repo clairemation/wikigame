@@ -1,26 +1,16 @@
+import render from "./render";
+
 const nmg = require('node-maze-generator');
 const {getArticleProperties} = require('../wiki-api/midlevelmanager.mjs');
 import generateMaze from './maze-generator.js';
-
-const scoreParent = document.querySelector('#score');
-const roomTitleParent = document.querySelector('#roomtitle')
-const linkInfoParent = document.querySelector('#linkinfo')
-const ctx = document.querySelector('canvas').getContext('2d');
-
-const CELL_WIDTH = 60, CELL_HEIGHT = 60;
-const WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
+import {viewConstants} from './view-constants.js';
 
 let animationFrame;
 let keyStatus = {};
 
-const viewState = {
-  windowX: 0,
-  windowY: 0,
-}
-
 const shouldPopulateTreasures = gameState => !gameState.acquiredTreasures.find(entry => entry.room === title)
 
-scoreParent.addEventListener('click', e => alert(gameState.acquiredTreasures))
+viewConstants.scoreParent.addEventListener('click', e => alert(gameState.acquiredTreasures))
 
 start();
 
@@ -30,10 +20,10 @@ function start()
     acquiredTreasures: [],
     currentRoomAcquiredTreasures: [],
     playerIsStillEntering: false,
-    entranceName: 'aerophone',
+    entranceName: 'bassoon',
     maze: [],
     score: 0,
-    title: 'aerophone',
+    title: 'bassoon',
     playerDirectionX: 0,
     playerDirectionY: 0,
     playerSpeed: 0.05,
@@ -88,7 +78,7 @@ async function startRoom(gameState)
   addEventListener("keyup", onKeyUp);
   addEventListener("mousedown", processMouseClick);
 
-  roomTitleParent.innerText = newGameState.title;
+  viewConstants.roomTitleParent.innerText = newGameState.title;
 }
 
 function stopAndClear()
@@ -98,8 +88,6 @@ function stopAndClear()
   removeEventListener("keydown", onKeyDown);
   removeEventListener("keyup", onKeyUp);
   removeEventListener("mousedown", processMouseClick);
-  ctx.clearRect(viewState.windowX, viewState.windowY, WINDOW_WIDTH, WINDOW_HEIGHT);
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
 
 function onKeyDown(e)
@@ -171,7 +159,7 @@ function loop(gameState)
     playerIsStillEntering = false;
   }
 
-  ctx.clearRect(viewState.windowX, viewState.windowY, WINDOW_WIDTH, WINDOW_HEIGHT);
+
 
   const newGameState = createNewGameState(gameState,
     {
@@ -180,7 +168,6 @@ function loop(gameState)
       playerGridY: playerGridPos.y
     });
 
-  ctx.setTransform(1, 0, 0, 1, -viewState.windowX, -viewState.windowY);
   render(gameState);
 
   animationFrame = requestAnimationFrame(() => loop(newGameState));
@@ -286,9 +273,6 @@ function calcNewPlayerPosition(gameState)
   newPlayerGridPosition.x = gameState.playerGridX + velocityX;
   newPlayerGridPosition.y = gameState.playerGridY + velocityY;
 
-  viewState.windowX = newPlayerGridPosition.x * CELL_WIDTH + CELL_WIDTH / 2 - WINDOW_WIDTH / 2;
-  viewState.windowY = newPlayerGridPosition.y * CELL_HEIGHT + CELL_HEIGHT / 2 - WINDOW_HEIGHT / 2;
-
   return newPlayerGridPosition;
 }
 
@@ -308,52 +292,6 @@ function generateMazeProperties(gameState, articleProperties)
     links: articleProperties.links.slice(0, Math.max(articleProperties.links.length / 10, 1)),
     treasures: articleProperties.citationsNeeded
   }
-}
-
-function render(gameState)
-{
-  renderMaze(gameState);
-  renderPlayer(gameState);
-}
-
-function renderPlayer(gameState)
-{
-  // renderCell(playerGridX, playerGridY, "blue");
-  renderPlayerCell(gameState.playerGridX, gameState.playerGridY, "blue");
-}
-
-function renderMaze(gameState)
-{
-  for (let i = 0 ; i < gameState.maze.length ; i++) {
-    for (let j = 0; j < gameState.maze[i].length; j++) {
-      if (gameState.maze[i][j].type === "wall")
-        renderCell(i, j, "green");
-      else if (gameState.maze[i][j].type === "exit" && !gameState.exitsAreOpen)
-      {
-        renderCell(i, j, "yellow");
-      }
-      else if (gameState.maze[i][j].type === "entrance")
-      {
-        renderCell(i, j, "black");
-      }
-      else if (gameState.maze[i][j].type === "treasure")
-      {
-        renderCell(i, j, "red");
-      }
-    }
-  }
-}
-
-function renderCell(i, j, color)
-{
-  ctx.fillStyle = color;
-  ctx.fillRect(i * CELL_WIDTH, j * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT);
-}
-
-function renderPlayerCell(x, y, color)
-{
-  ctx.fillStyle = color;
-  ctx.fillRect(x * CELL_WIDTH + 10, y * CELL_HEIGHT + 10, CELL_WIDTH - 20, CELL_HEIGHT -20);
 }
 
 export default function main() {}
