@@ -1,12 +1,12 @@
-import render from "./render";
-
+import {render, renderInfo} from "./render";
+import events from "./events";
 const nmg = require('node-maze-generator');
 const {getArticleProperties} = require('../wiki-api/midlevelmanager.mjs');
 import generateMaze from './maze-generator.js';
 import {viewConstants} from './view-constants.js';
+import {getKeyStatus, getMouseStatus} from "./input";
 
 let animationFrame;
-let keyStatus = {};
 
 const shouldPopulateTreasures = gameState => !gameState.acquiredTreasures.find(entry => entry.room === title)
 
@@ -74,35 +74,27 @@ async function startRoom(gameState)
   const newGameState = createNewGameState(gameState, {maze, playerIsStillEntering, playerGridX, playerGridY});
   animationFrame = requestAnimationFrame(() => loop(newGameState));
 
-  addEventListener("keydown", onKeyDown);
-  addEventListener("keyup", onKeyUp);
-  addEventListener("mousedown", processMouseClick);
-
   viewConstants.roomTitleParent.innerText = newGameState.title;
-}
-
-function stopAndClear()
-{
-  cancelAnimationFrame(animationFrame);
-  keyStatus = {};
-  removeEventListener("keydown", onKeyDown);
-  removeEventListener("keyup", onKeyUp);
-  removeEventListener("mousedown", processMouseClick);
-}
-
-function onKeyDown(e)
-{
-  keyStatus[e.key] = true
-}
-
-function onKeyUp(e)
-{
-  keyStatus[e.key] = false;
 }
 
 function loop(gameState)
 {
   const gameStateUpdates = {}
+
+  const {mouseStatus, mouseGridPos} = getMouseStatus();
+  if (mouseStatus && mouseGridPos.x >= 0 && mouseGridPos.y >= 0 && mouseGridPos.x < gameState.maze.length && mouseGridPos.y < gameState.maze.length)
+  {
+    const {name, type, title} = gameState.maze[mouseGridPos.x][mouseGridPos.y];
+    if (type === "exit") {
+      renderInfo(title);
+    }
+    else if (type === "treasure") {
+      renderInfo(name);
+    }
+    else if (type === "entrance") {
+      renderInfo(gameState.entranceName);
+    }
+  }
 
   const playerGridPos = calcNewPlayerPosition(gameState);
   gameStateUpdates.playerGridX = playerGridPos.x;
@@ -114,13 +106,9 @@ function loop(gameState)
     gameStateUpdates.score = gameState.score + 1;
     gameStateUpdates.currentRoomAcquiredTreasures = [...gameState.currentRoomAcquiredTreasures, treasureAcquired];
 
-    // Yeah, this is not optimal for a huge maze, but we don't have a huge maze
-    // Also I don't think it even actually succeeds at being immutable at the cell level
-    const maze = {...gameState.maze};
-    maze[Math.floor(gameState.playerGridX)][Math.floor(gameState.playerGridY)].type = "space";
-    gameStateUpdates.maze = maze;
+    //todo: this is supposed to be immutable
+    gameState.maze[Math.floor(gameState.playerGridX)][Math.floor(gameState.playerGridY)].type = "space";
   }
-
 
   const {playerIsOnExit, exitTitle} = isPlayerOnExit(gameState);
   if (playerIsOnExit)
@@ -135,12 +123,11 @@ function loop(gameState)
 
     const newGameState = createNewGameState(gameState, gameStateUpdates);
 
-    stopAndClear();
+    // stopAndClear();
     startRoom(newGameState);
     return;
   }
 
-  let playerIsStillEntering = true;
   if (isPlayerOnEntrance(gameState))
   {
     if (!gameState.playerIsStillEntering)
@@ -149,27 +136,19 @@ function loop(gameState)
       gameStateUpdates.entranceName = gameState.entranceName;
 
       const newGameState = createNewGameState(gameState, gameStateUpdates);
-      stopAndClear();
+      // stopAndClear();
       startRoom(newGameState);
       return;
     }
   }
   else
   {
-    playerIsStillEntering = false;
+    gameStateUpdates.playerIsStillEntering = false;
   }
 
+  const newGameState = createNewGameState(gameState, gameStateUpdates);
 
-
-  const newGameState = createNewGameState(gameState,
-    {
-      playerIsStillEntering,
-      playerGridX: playerGridPos.x,
-      playerGridY: playerGridPos.y
-    });
-
-  render(gameState);
-
+  render(newGameState);
   animationFrame = requestAnimationFrame(() => loop(newGameState));
 }
 
@@ -195,38 +174,16 @@ function isPlayerOnEntrance(gameState)
   return gameState.maze[Math.floor(Math.max(gameState.playerGridX, 0))][Math.floor(Math.max(gameState.playerGridY, 0))].type === 'entrance';
 }
 
-function processMouseClick(e)
-{
-  // try {
-  //   const clickGridPositionX = Math.floor((e.clientX - e.target.clientLeft + windowX) / CELL_WIDTH);
-  //   const clickGridPositionY = Math.floor((e.clientY - e.target.clientTop + windowY) / CELL_HEIGHT)
-  //
-  //   if (maze[clickGridPositionX][clickGridPositionY].type === "exit") {
-  //     linkInfoParent.innerText = positionToLinkName[clickGridPositionX][clickGridPositionY];
-  //   }
-  //   if (maze[clickGridPositionX][clickGridPositionY].type === "treasure") {
-  //     linkInfoParent.innerText = maze[clickGridPositionX][clickGridPositionY].name;
-  //   }
-  //   if (maze[clickGridPositionX][clickGridPositionY].type === "entrance") {
-  //     linkInfoParent.innerText = entranceName;
-  //   }
-  // }
-  // catch (e)
-  // {
-  //   console.error(e)
-  // }
-}
-
 function calcNewPlayerPosition(gameState)
 {
   const newPlayerGridPosition = {x: 0, y: 0};
 
   let playerDirectionX = 0, playerDirectionY = 0;
 
-  if (keyStatus['w']) playerDirectionY--;
-  if (keyStatus['a']) playerDirectionX--;
-  if (keyStatus['s']) playerDirectionY++;
-  if (keyStatus['d']) playerDirectionX++;
+  if (getKeyStatus('w')) playerDirectionY--;
+  if (getKeyStatus('a')) playerDirectionX--;
+  if (getKeyStatus('s')) playerDirectionY++;
+  if (getKeyStatus('d')) playerDirectionX++;
 
   let velocityX = playerDirectionX * gameState.playerSpeed;
   let velocityY = playerDirectionY * gameState.playerSpeed;

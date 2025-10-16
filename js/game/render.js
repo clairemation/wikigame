@@ -5,9 +5,11 @@ const WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
 const viewState = {
   windowX: 0,
   windowY: 0,
+  score: -1,
+  roomTitle: ""
 }
 
-export default function render(gameState)
+export function render(gameState)
 {
   viewConstants.ctx.clearRect(viewState.windowX, viewState.windowY, WINDOW_WIDTH, WINDOW_HEIGHT);
 
@@ -19,9 +21,20 @@ export default function render(gameState)
   renderPlayer(gameState);
 }
 
+export function renderInfo(info)
+{
+  viewConstants.linkInfoParent.innerText = info;
+}
+
+export function windowPosToGridPos(windowPosX, windowPosY)
+{
+  const gridPositionX = Math.floor((windowPosX - viewConstants.canvas.clientLeft + viewState.windowX) / CELL_WIDTH);
+  const gridPositionY = Math.floor((windowPosY - viewConstants.canvas.clientTop + viewState.windowY) / CELL_HEIGHT)
+  return ({x: gridPositionX, y: gridPositionY});
+}
+
 function renderPlayer(gameState)
 {
-  // renderCell(playerGridX, playerGridY, "blue");
   renderPlayerCell(gameState.playerGridX, gameState.playerGridY, "blue");
 }
 
