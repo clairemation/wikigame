@@ -6,7 +6,7 @@ export default async function checkPlayerPositionForEntrance(gameState) {
   if (isPlayerOnEntrance(gameState)) {
     if (!gameState.playerIsStillEntering) {
       entranceUpdates.title = gameState.entranceName;
-      entranceUpdates.entranceName = gameState.entranceName;
+      entranceUpdates.entranceName = gameState.title;
 
       const newGameState = createNewGameState(gameState, entranceUpdates);
       // stopAndClear();
