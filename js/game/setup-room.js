@@ -48,11 +48,29 @@ export default async function setupRoom(gameState)
 
 function generateMazeProperties(gameState, articleProperties)
 {
+  const size = Math.min(Math.max(articleProperties.wordCount / 400, 10), 15);
+  const numberOfExits =  Math.min(Math.max(articleProperties.links.length / 10, 1), 10);
+
   return {
     title: gameState.title,
-    size: Math.max(articleProperties.wordCount / 400, 10),
-    simplicity: 1 / (Math.ceil(articleProperties.links.length) / 70),
-    links: articleProperties.links.slice(0, Math.max(articleProperties.links.length / 10, 1)),
+    size: size,
+    simplicity: 1 / (Math.ceil(articleProperties.links.length) / 80),
+    links: grabXRandomLinks(articleProperties.links, numberOfExits),
     treasures: [...articleProperties.citationsNeeded, ...articleProperties.clarificationsNeeded]
   }
+}
+
+function grabXRandomLinks(links, x)
+{
+  const linksCopy = [...links]
+  const randomLinks = []
+
+  for (let i = 0; i < x; i++)
+  {
+    const rand = Math.floor(Math.random() * (linksCopy.length - 1));
+    randomLinks.push(linksCopy[rand]);
+    linksCopy.splice(rand, 1);
+  }
+
+  return randomLinks;
 }

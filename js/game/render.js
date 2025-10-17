@@ -9,8 +9,41 @@ const viewState = {
 
 let priorGameState = {};
 
+let ready = false;
+
+let frameNum = 1;
+
+const images = {
+  "bush": new Image(),
+  "chara1": new Image(),
+  "chara2": new Image(),
+  "entrance": new Image(),
+  "exit": new Image(),
+  "treasure": new Image()
+}
+
+loadAllImages();
+setInterval(flipFrameNumber, 250);
+
+async function loadAllImages()
+{
+  const imageNames = ["bush", "chara1", "chara2", "entrance", "exit", "treasure"];
+  const imagePromises = [];
+  for (let imageName of imageNames)
+  {
+    const image = images[imageName];
+    imagePromises.push(new Promise((resolve) => image.addEventListener("load", resolve)))
+    image.src = `../img/${imageName}.png`;
+  }
+
+  await Promise.all(imagePromises);
+  ready = true;
+}
+
 export function render(gameState)
 {
+  if (!ready) return;
+
   // if (gameState.playerGridX !== priorGameState.playerGridX
   // || gameState.playerGridY !== priorGameState.playerGridY)
   // {
@@ -80,6 +113,22 @@ function renderCell(i, j, color)
 
 function renderPlayerCell(x, y, color)
 {
-  viewConstants.ctx.fillStyle = color;
-  viewConstants.ctx.fillRect(x * CELL_WIDTH + 10, y * CELL_HEIGHT + 10, CELL_WIDTH - 20, CELL_HEIGHT -20);
+
+  if (frameNum === 1)
+  {
+    viewConstants.ctx.drawImage(images.chara1, 0, 0, 100, 100, x * CELL_WIDTH, y * CELL_WIDTH, CELL_WIDTH, CELL_HEIGHT, 60, 60);
+  }
+  else
+  {
+    viewConstants.ctx.drawImage(images.chara2, 100, 0, -100, 100, x * CELL_WIDTH, y * CELL_WIDTH, CELL_WIDTH, CELL_HEIGHT, 60, 60);
+  }
+
+  // viewConstants.ctx.fillStyle = color;
+  // viewConstants.ctx.fillRect(x * CELL_WIDTH + 10, y * CELL_HEIGHT + 10, CELL_WIDTH - 20, CELL_HEIGHT -20);
 }
+
+function flipFrameNumber()
+{
+  frameNum = (frameNum + 1) % 2
+}
+
