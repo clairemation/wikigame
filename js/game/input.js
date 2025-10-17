@@ -3,6 +3,7 @@ import {windowPosToGridPos} from "./render";
 let keyStatus = {};
 let mouseStatus = false;
 let mouseGridPos = {x:0,y:0};
+let mouseTarget;
 
 export function getKeyStatus(key)
 {
@@ -11,7 +12,7 @@ export function getKeyStatus(key)
 
 export function getMouseStatus()
 {
-  return {mouseStatus, mouseGridPos};
+  return {mouseStatus, mouseGridPos, mouseTarget};
 }
 
 // function start()
@@ -19,6 +20,7 @@ export function getMouseStatus()
   addEventListener("keydown", onKeyDown);
   addEventListener("keyup", onKeyUp);
   addEventListener("mousedown", processMouseClick);
+  addEventListener("mouseup", processMouseUp);
 // }
 
 function stop()
@@ -27,6 +29,7 @@ function stop()
   removeEventListener("keydown", onKeyDown);
   removeEventListener("keyup", onKeyUp);
   removeEventListener("mousedown", processMouseClick);
+  removeEventListener("mouseup", processMouseUp);
 }
 
 function onKeyDown(e)
@@ -44,9 +47,16 @@ function processMouseClick(e)
   try {
     mouseStatus = true;
     mouseGridPos = windowPosToGridPos(e.clientX, e.clientY);
+    mouseTarget = e.target;
   }
   catch (e)
   {
     console.error(e)
   }
+}
+
+function processMouseUp(e)
+{
+  mouseStatus = false;
+  mouseTarget = null;
 }

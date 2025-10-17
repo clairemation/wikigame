@@ -1,6 +1,5 @@
-import {render, renderInfo} from "./render";
+import {render} from "./render";
 const nmg = require('node-maze-generator');
-import {viewConstants} from './view-constants.js';
 import processMouseInput from "./process-mouse-input";
 import processKeyInput from "./process-key-input";
 import checkPlayerPositionForTreasure from "./check-player-position-for-treasure";
@@ -12,8 +11,6 @@ import checkPlayerPositionForEntrance from "./check-player-position-for-entrance
 let animationFrame;
 
 const shouldPopulateTreasures = gameState => !gameState.acquiredTreasures.find(entry => entry.room === title)
-
-viewConstants.scoreParent.addEventListener('click', e => alert(gameState.acquiredTreasures))
 
 start();
 
@@ -35,14 +32,9 @@ async function start()
   }
 
   const gameState = createNewGameState({}, gameStateProperties);
-
   const gameStateAfterSetup = await setupRoom(gameState);
   loop(gameStateAfterSetup);
 }
-
-
-
-
 
 async function loop(gameState)
 {
@@ -59,18 +51,11 @@ async function loop(gameState)
     ...positionUpdates
   };
 
-
-
-
-
   const newGameState = createNewGameState(gameState, gameStateUpdates);
 
   render(newGameState);
+
   animationFrame = requestAnimationFrame(() => loop(newGameState));
 }
-
-
-
-
 
 export default function main() {}
