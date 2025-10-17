@@ -7,6 +7,7 @@ import createNewGameState from "./create-new-game-state";
 import setupRoom from "./setup-room";
 import checkPlayerPositionForExit from "./check-player-position-for-exit";
 import checkPlayerPositionForEntrance from "./check-player-position-for-entrance";
+import getRandomArticleName from "./helpers/wiki";
 
 let animationFrame;
 
@@ -16,14 +17,16 @@ start();
 
 async function start()
 {
+  const randomTitle = await getRandomArticleName();
+
   const gameStateProperties = {
     acquiredTreasures: [],
     currentRoomAcquiredTreasures: [],
     playerIsStillEntering: false,
-    entranceName: 'bassoon',
+    entranceName: randomTitle,
     maze: [],
     score: 0,
-    title: 'bassoon',
+    title: randomTitle,
     playerDirectionX: 0,
     playerDirectionY: 0,
     playerSpeed: 0.05,

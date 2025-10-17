@@ -7,11 +7,11 @@ export default function processMouseInput(gameState)
 
   const {mouseStatus, mouseGridPos, mouseTarget} = getMouseStatus();
 
-  // if (mouseTarget === viewConstants.scoreParent)
-  // {
-  //   mouseUpdates.renderedInfo = gameState.acquiredTreasures.map(e => e.room).join(",");
-  // }
-  // else {
+  if (mouseTarget === viewConstants.scoreParent)
+  {
+    console.log(gameState);
+  }
+  else {
     if (mouseStatus && mouseGridPos.x >= 0 && mouseGridPos.y >= 0 && mouseGridPos.x < gameState.maze.length && mouseGridPos.y < gameState.maze.length) {
       const {name, type, title} = gameState.maze[mouseGridPos.x][mouseGridPos.y];
       if (type === "exit") {
@@ -22,7 +22,7 @@ export default function processMouseInput(gameState)
         mouseUpdates.renderedInfo = gameState.entranceName;
       }
     }
-  // }
+  }
 
   return mouseUpdates;
 }
