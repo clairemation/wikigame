@@ -14,7 +14,7 @@ let ready = false;
 let frameNum = 1;
 
 const images = {
-  "bush": new Image(),
+  "wall": new Image(),
   "chara1": new Image(),
   "chara2": new Image(),
   "entrance": new Image(),
@@ -27,7 +27,7 @@ setInterval(flipFrameNumber, 250);
 
 async function loadAllImages()
 {
-  const imageNames = ["bush", "chara1", "chara2", "entrance", "exit", "treasure"];
+  const imageNames = ["wall", "chara1", "chara2", "entrance", "exit", "treasure"];
   const imagePromises = [];
   for (let imageName of imageNames)
   {
@@ -87,28 +87,18 @@ function renderMaze(gameState)
 {
   for (let i = 0 ; i < gameState.maze.length ; i++) {
     for (let j = 0; j < gameState.maze[i].length; j++) {
-      if (gameState.maze[i][j].type === "wall")
-        renderCell(i, j, "green");
-      else if (gameState.maze[i][j].type === "exit" && !gameState.exitsAreOpen)
+      const cell = gameState.maze[i][j];
+      if (cell.type !== "space")
       {
-        renderCell(i, j, "yellow");
-      }
-      else if (gameState.maze[i][j].type === "entrance")
-      {
-        renderCell(i, j, "black");
-      }
-      else if (gameState.maze[i][j].type === "treasure")
-      {
-        renderCell(i, j, "red");
+        renderCell(i, j, cell.type);
       }
     }
   }
 }
 
-function renderCell(i, j, color)
+function renderCell(x, y, cellType)
 {
-  viewConstants.ctx.fillStyle = color;
-  viewConstants.ctx.fillRect(i * CELL_WIDTH, j * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT);
+  viewConstants.ctx.drawImage(images[cellType], 0, 0, 100, 100, x * CELL_WIDTH, y * CELL_WIDTH, CELL_WIDTH, CELL_HEIGHT);
 }
 
 function renderPlayerCell(x, y, color)
@@ -116,15 +106,12 @@ function renderPlayerCell(x, y, color)
 
   if (frameNum === 1)
   {
-    viewConstants.ctx.drawImage(images.chara1, 0, 0, 100, 100, x * CELL_WIDTH, y * CELL_WIDTH, CELL_WIDTH, CELL_HEIGHT, 60, 60);
+    viewConstants.ctx.drawImage(images.chara1, 0, 0, 100, 100, x * CELL_WIDTH, y * CELL_WIDTH, CELL_WIDTH, CELL_HEIGHT);
   }
   else
   {
-    viewConstants.ctx.drawImage(images.chara2, 100, 0, -100, 100, x * CELL_WIDTH, y * CELL_WIDTH, CELL_WIDTH, CELL_HEIGHT, 60, 60);
+    viewConstants.ctx.drawImage(images.chara2, 100, 0, -100, 100, x * CELL_WIDTH, y * CELL_WIDTH, CELL_WIDTH, CELL_HEIGHT);
   }
-
-  // viewConstants.ctx.fillStyle = color;
-  // viewConstants.ctx.fillRect(x * CELL_WIDTH + 10, y * CELL_HEIGHT + 10, CELL_WIDTH - 20, CELL_HEIGHT -20);
 }
 
 function flipFrameNumber()

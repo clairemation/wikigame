@@ -250,7 +250,7 @@ body {
   color: #fff;
   font-family: sans-serif;
   font-size: 2em;
-  display: flex;
+  display: grid;
 }
 
 h1 {
