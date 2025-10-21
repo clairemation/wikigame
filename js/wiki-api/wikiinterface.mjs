@@ -239,7 +239,7 @@ export class WikiArticle{
 	if(prefetch){
 	    this.children=[];
 	    let li=this.article.li
-	    for (let i=0;i<30;i++){
+	    for (let i=0;i<li.length;i++){
 		let arty=new WikiArticle(li[i],this.name)
 		await arty.init(false)
 		console.log(arty)
@@ -252,6 +252,11 @@ export class WikiArticle{
 	//	this.cns=this.article.cn.map(x=>{textx})
 	this.treasures.push(...this.article.cn.map((x)=>({type:"citation needed",text:x,parent:this.parent})))
 	this.treasures.push(...this.article.cl.map((x)=>({type:"clarification needed",text:x,parent:this.parent})))
+	if(prefetch){
+	    for (let i=0;i<this.children.length;i++){
+		this.treasures.push({type:"redlink",name:this.children[i].name,parent:this.name})
+	    }			    
+	}
 //	console.log(this.treasures);
 //	console.log(this.article.cn)
 //	console.log(this.article.title)
@@ -312,8 +317,9 @@ export class WikiGame{
 
 	switch(treasure.type){
 	case "redlink":
-	    if(0&&html){
-		
+	    if(1&&html){
+		str+="Article "+urlize(treasure.parent,html)+" has redlink of " +urlize(treasure.name,html)+"\n"
+		if(html) str+="<br>";		
 	    }else{
 		str+="Article "+urlize(treasure.parent,html)+" has redlink of " +urlize(treasure.name,html)+"\n"
 		if(html) str+="<br>";
