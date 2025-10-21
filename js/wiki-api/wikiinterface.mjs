@@ -236,12 +236,12 @@ export class WikiArticle{
 	    return;
 	}
 	this.type="goodlink"
-	if(prefetch){
+	if(1 && prefetch){
 	    this.children=[];
 	    let li=this.article.li
 	    for (let i=0;i<li.length;i++){
 		let arty=new WikiArticle(li[i],this.name)
-		await arty.init(false)
+		if(prefetch) await arty.init(false)
 		console.log(arty)
 		this.children.push(arty)
 	    }
@@ -250,11 +250,11 @@ export class WikiArticle{
 //	console.log("hj")
 //	console.log(this.article)
 	//	this.cns=this.article.cn.map(x=>{textx})
-	this.treasures.push(...this.article.cn.map((x)=>({type:"citation needed",text:x,parent:this.parent})))
-	this.treasures.push(...this.article.cl.map((x)=>({type:"clarification needed",text:x,parent:this.parent})))
+	this.treasures.push(...this.article.cn.map((x)=>({type:"citation needed",text:x,parent:this.name})))
+	this.treasures.push(...this.article.cl.map((x)=>({type:"clarification needed",text:x,parent:this.name})))
 	if(prefetch){
 	    for (let i=0;i<this.children.length;i++){
-		this.treasures.push({type:"redlink",name:this.children[i].name,parent:this.name})
+		if (this.children[i].isRedlink()) this.treasures.push({type:"redlink",name:this.children[i].name,parent:this.name})
 	    }			    
 	}
 //	console.log(this.treasures);
