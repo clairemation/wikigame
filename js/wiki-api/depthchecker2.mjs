@@ -8,7 +8,7 @@ async function grr(a,b,c){
 
 async function pullinPagestats(name,depth,parent){
     let article=new Wiki.WikiArticle(name,parent);
-    let r = await article.init();
+    let r = await article.init(true);
     game.addItemToScore(article);
     if(article.isRedlink()){
 	return;
@@ -52,7 +52,7 @@ export async function* checkArticleScore(name){
 // code to enter an] wiki article
 async function enterArt(name,parent){
     let article=new Wiki.WikiArticle(name,parent);
-    let r = await article.init();
+    let r = await article.init(true);
     let retstr=""
 
     game.addItemToScore(article);
@@ -68,10 +68,17 @@ async function enterArt(name,parent){
     retstr+="<h1>Exits:</h1>"
 retstr+=        "<div id=quick-input-buttons>"
 	retstr+="<button class=input-option data-text=\"GO HOME\">GO HOME</button>"
-    for (let i=0;i<10;i++){
+    for (let i=0;i<30;i++){
 	let n=article.getLinks()[i]
-	retstr+="<button class=input-option data-text=\""+n+"#"+name+"\">"+n+"</button>"
-//	retstr+=article.getLinks()[i];
+	let c=article.getChildren()[i]
+	n=c.name
+	console.log(c)
+	if(c.isRedlink()){
+	    retstr+="<button class=input-option data-text=\""+n+"#"+name+"\">"+n+" (red)</button>"
+	}else{
+	    retstr+="<button class=input-option data-text=\""+n+"#"+name+"\">"+n+" (blue)</button>"
+	}
+	//	retstr+=article.getLinks()[i];
     }
 retstr+="</div>"
     return retstr;
@@ -79,7 +86,7 @@ retstr+="</div>"
 }
 
 export async function* enterArticle(name){
-    if(name=="GO HOME"){
+    if(name=="GOO HOME"){
 	//on exit print the total score
 	game.calculateScore()
 	let l=game.returnFullTextScore(true)

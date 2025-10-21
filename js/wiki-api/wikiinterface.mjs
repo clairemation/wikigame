@@ -228,11 +228,23 @@ export class WikiArticle{
 	return false
     }
 
-    async init(){
+    async init(prefetch=false){
+	if(this.initialized) return
 	this.article={};
 	if (await afetchWikipediaArticle(this.name,this.article)){
 	    if(this.isRedlink()) this.type="redlink";
 	    return;
+	}
+	this.type="goodlink"
+	if(prefetch){
+	    this.children=[];
+	    let li=this.article.li
+	    for (let i=0;i<30;i++){
+		let arty=new WikiArticle(li[i],this.name)
+		await arty.init(false)
+		console.log(arty)
+		this.children.push(arty)
+	    }
 	}
 	this.type="article"
 //	console.log("hj")
@@ -244,6 +256,7 @@ export class WikiArticle{
 //	console.log(this.article.cn)
 //	console.log(this.article.title)
 //	console.log(this.cns)
+	this.initialized=true
 	return true;
     }
 
@@ -252,6 +265,9 @@ export class WikiArticle{
     }
     getLinks(){
 	return this.article.li;
+    }
+    getChildren(){
+	return this.children;
     }
 }
 
