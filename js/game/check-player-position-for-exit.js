@@ -7,11 +7,7 @@ export default async function checkPlayerPositionForExit(gameState)
   if (playerIsOnExit)
   {
     const exitUpdates = {}
-    if (gameState.currentRoomAcquiredTreasures.length > 0) {
-      exitUpdates.acquiredTreasures = [...gameState.acquiredTreasures, {room: gameState.title, treasures: gameState.currentRoomAcquiredTreasures}];
-    }
 
-    exitUpdates.currentRoomAcquiredTreasures = [];
     exitUpdates.entranceName = gameState.title;
     exitUpdates.title = exitTitle;
 

@@ -8,6 +8,7 @@ import setupRoom from "./setup-room";
 import checkPlayerPositionForExit from "./check-player-position-for-exit";
 import checkPlayerPositionForEntrance from "./check-player-position-for-entrance";
 import getRandomArticleName from "./helpers/wiki";
+import {viewConstants} from "./view-constants";
 
 let animationFrame;
 
@@ -21,7 +22,6 @@ async function start()
 
   const gameStateProperties = {
     acquiredTreasures: [],
-    currentRoomAcquiredTreasures: [],
     playerIsStillEntering: false,
     entranceName: randomTitle,
     maze: [],
@@ -41,24 +41,33 @@ async function start()
 
 async function loop(gameState)
 {
-  const mouseUpdates = processMouseInput(gameState);
-  const keyUpdates = processKeyInput(gameState);
-  const positionUpdates = checkPlayerPositionForTreasure(gameState)
-    || await checkPlayerPositionForExit(gameState)
-    || await checkPlayerPositionForEntrance(gameState);
+  try {
+    const mouseUpdates = processMouseInput(gameState);
+    const keyUpdates = processKeyInput(gameState);
+    const positionUpdates = checkPlayerPositionForTreasure(gameState)
+      || await checkPlayerPositionForExit(gameState)
+      || await checkPlayerPositionForEntrance(gameState);
 
-  const gameStateUpdates =
-    {
-    ...mouseUpdates,
-    ...keyUpdates,
-    ...positionUpdates
-  };
+    const gameStateUpdates =
+      {
+        ...mouseUpdates,
+        ...keyUpdates,
+        ...positionUpdates
+      };
 
-  const newGameState = createNewGameState(gameState, gameStateUpdates);
+    const newGameState = createNewGameState(gameState, gameStateUpdates);
 
-  render(newGameState);
+    render(newGameState);
 
-  animationFrame = requestAnimationFrame(() => loop(newGameState));
+    animationFrame = requestAnimationFrame(() => loop(newGameState));
+  }
+  catch (error)
+  {
+    viewConstants.modalParent.classList.remove("hidden");
+    viewConstants.treasureListParent.innerHTML = `
+      ${gameState.acquiredTreasures.map(e => "<li>" + e + "</li>")}
+    `
+  }
 }
 
 export default function main() {}

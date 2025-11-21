@@ -25,10 +25,6 @@ export default async function setupRoom(gameState)
       }
     }
   }
-  if (!x)
-  {
-    console.error("Entrance not found");
-  }
 
   const playerGridX = x, playerGridY = y;
 
@@ -39,7 +35,6 @@ export default async function setupRoom(gameState)
       playerGridX,
       playerGridY
     });
-  // animationFrame = requestAnimationFrame(() => loop(newGameState));
 
   viewConstants.roomTitleParent.innerText = newGameState.title;
 

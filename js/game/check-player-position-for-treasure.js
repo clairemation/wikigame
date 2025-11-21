@@ -3,7 +3,7 @@ export default function checkPlayerPositionForTreasure(gameState) {
   if (treasureAcquired) {
     const treasureUpdates = {};
     treasureUpdates.score = gameState.score + 1;
-    treasureUpdates.currentRoomAcquiredTreasures = [...gameState.currentRoomAcquiredTreasures, treasureAcquired];
+    treasureUpdates.acquiredTreasures = [...gameState.acquiredTreasures, `${gameState.title}: ${treasureAcquired}`]
 
     //todo: this is supposed to be immutable
     gameState.maze[Math.floor(gameState.playerGridX)][Math.floor(gameState.playerGridY)].type = "space";
