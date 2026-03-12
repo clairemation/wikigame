@@ -61,7 +61,7 @@ function getUsableBorderTiles(maze)
   //right, minus top and bottom
   for (let i = 1 ; i < maze.length -1  ; i++)
   {
-    if (maze[maze.length - 1][i] === "wall".type && maze[maze.length - 2][i].type === "space")
+    if (maze[maze.length - 1][i].type === "wall" && maze[maze.length - 2][i].type === "space")
       usableBorderTiles.push({x: maze.length - 1, y: i});
   }
 
