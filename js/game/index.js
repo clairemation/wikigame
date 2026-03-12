@@ -1,5 +1,4 @@
 import {render} from "./render";
-const nmg = require('node-maze-generator');
 import processMouseInput from "./process-mouse-input";
 import processKeyInput from "./process-key-input";
 import checkPlayerPositionForTreasure from "./check-player-position-for-treasure";

@@ -9,7 +9,7 @@ export default function processMouseInput(gameState)
 
   if (mouseTarget === viewConstants.scoreParent)
   {
-    console.log(gameState);
+    // console.log(gameState);
   }
   else {
     if (mouseStatus && mouseGridPos.x >= 0 && mouseGridPos.y >= 0 && mouseGridPos.x < gameState.maze.length && mouseGridPos.y < gameState.maze.length) {

@@ -9,6 +9,13 @@ export default function processKeyInput(gameState)
   if (getKeyStatus('s')) playerDirectionY++;
   if (getKeyStatus('d')) playerDirectionX++;
 
+  // so hacky lol
+  if (playerDirectionX !== 0 && playerDirectionY !== 0)
+  {
+    playerDirectionX *= 0.7;
+    playerDirectionY *= 0.7;
+  }
+
   let velocityX = playerDirectionX * gameState.playerSpeed;
   let velocityY = playerDirectionY * gameState.playerSpeed;
 

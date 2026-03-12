@@ -1,7 +1,6 @@
 import createNewGameState from "./create-new-game-state";
-
-const {getArticleProperties} = require("../wiki-api/midlevelmanager.mjs");
 import generateMaze from './maze-generator.js';
+const {getArticleProperties} = require("../wiki-api/midlevelmanager.mjs");
 const {viewConstants} = require("./view-constants");
 
 export default async function setupRoom(gameState)
