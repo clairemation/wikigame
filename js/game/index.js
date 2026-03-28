@@ -28,7 +28,7 @@ async function start()
     title: randomTitle,
     playerDirectionX: 0,
     playerDirectionY: 0,
-    playerSpeed: 0.05,
+    playerSpeed: 3.5,
     playerGridX: 0,
     playerGridY: 0,
   }

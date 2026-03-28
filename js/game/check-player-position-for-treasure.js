@@ -6,7 +6,7 @@ export default function checkPlayerPositionForTreasure(gameState) {
     treasureUpdates.acquiredTreasures = [...gameState.acquiredTreasures, `${gameState.title}: ${treasureAcquired}`]
 
     //todo: this is supposed to be immutable
-    gameState.maze[Math.floor(gameState.playerGridX)][Math.floor(gameState.playerGridY)].type = "space";
+    gameState.maze[Math.floor(gameState.playerGridX + 0.5)][Math.floor(gameState.playerGridY + 0.5)].type = "space";
 
     return treasureUpdates;
   }
@@ -15,8 +15,8 @@ export default function checkPlayerPositionForTreasure(gameState) {
 function isPlayerOnTreasure(gameState)
 {
   return (
-    gameState.maze[Math.floor(Math.max(gameState.playerGridX, 0))][Math.floor(Math.max(gameState.playerGridY, 0))].type === 'treasure'
-      ? gameState.maze[Math.floor(Math.max(gameState.playerGridX, 0))][Math.floor(Math.max(gameState.playerGridY, 0))].name
+    gameState.maze[Math.floor(Math.max(gameState.playerGridX + 0.5, 0))][Math.floor(Math.max(gameState.playerGridY + 0.5, 0))].type === 'treasure'
+      ? gameState.maze[Math.floor(Math.max(gameState.playerGridX + 0.5, 0))][Math.floor(Math.max(gameState.playerGridY + 0.5, 0))].name
       : false
   );
 }

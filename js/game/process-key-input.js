@@ -1,7 +1,14 @@
 import {getKeyStatus} from "./input";
 
+let lastTime = 0;
+
 export default function processKeyInput(gameState)
 {
+
+  let currentTime = Date.now() / 1000;
+  let dt = currentTime - lastTime;
+  lastTime = currentTime;
+
   let playerDirectionX = 0, playerDirectionY = 0;
 
   if (getKeyStatus('w')) playerDirectionY--;
@@ -16,8 +23,8 @@ export default function processKeyInput(gameState)
     playerDirectionY *= 0.7;
   }
 
-  let velocityX = playerDirectionX * gameState.playerSpeed;
-  let velocityY = playerDirectionY * gameState.playerSpeed;
+  let velocityX = playerDirectionX * gameState.playerSpeed * dt;
+  let velocityY = playerDirectionY * gameState.playerSpeed * dt;
 
   let checkPoints = {
     upperLeft: {x: gameState.playerGridX + velocityX + 0.2, y: gameState.playerGridY +  velocityY + 0.2},

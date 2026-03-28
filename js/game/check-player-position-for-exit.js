@@ -19,7 +19,7 @@ export default async function checkPlayerPositionForExit(gameState)
 
 function isPlayerOnExit(gameState)
 {
-  const cell = gameState.maze[Math.floor(Math.max(gameState.playerGridX, 0))][Math.floor(Math.max(gameState.playerGridY, 0))];
+  const cell = gameState.maze[Math.floor(Math.max(gameState.playerGridX + 0.5, 0))][Math.floor(Math.max(gameState.playerGridY + 0.5, 0))];
   const playerIsOnExit = cell.type === "exit"
   const exitTitle = cell.title;
   return {playerIsOnExit, exitTitle};

@@ -21,5 +21,5 @@ export default async function checkPlayerPositionForEntrance(gameState) {
 
 function isPlayerOnEntrance(gameState)
 {
-  return gameState.maze[Math.floor(Math.max(gameState.playerGridX, 0))][Math.floor(Math.max(gameState.playerGridY, 0))].type === 'entrance';
+  return gameState.maze[Math.floor(Math.max(gameState.playerGridX + 0.5, 0))][Math.floor(Math.max(gameState.playerGridY + 0.5, 0))].type === 'entrance';
 }
