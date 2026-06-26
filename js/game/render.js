@@ -125,7 +125,7 @@ function renderPlayerCell(x, y, color)
 function renderTime(timeRemaining)
 {
   let minutes = Math.floor(timeRemaining / 60000)
-  let seconds = Math.floor((timeRemaining % 60000) / 1000)
+  let seconds = Math.floor((timeRemaining % 60000) / 1000).toString().padStart(2, "0");
   document.querySelector("#time-remaining").innerHTML = `${minutes}:${seconds}`;
 }
 

@@ -9,6 +9,7 @@ import checkPlayerPositionForEntrance from "./check-player-position-for-entrance
 import getRandomArticleName from "./helpers/wiki";
 import {viewConstants} from "./view-constants";
 
+let running = true;
 let animationFrame;
 let lastTime = Date.now();
 let elapsedTime = 0;
@@ -43,6 +44,11 @@ async function start()
 
 async function loop(gameState)
 {
+  if (gameState.timeRemaining <= 0)
+  {
+    return;
+  }
+
   try {
     const timeUpdates = updateTime(gameState);
     const mouseUpdates = processMouseInput(gameState);
@@ -81,7 +87,9 @@ function updateTime(gameState)
   let dt = currentTime - lastTime;
   lastTime = currentTime;
 
-  let gameStateUpdate = {timeRemaining: gameState.timeRemaining - dt};
+  let newTimeRemaining = Math.max(gameState.timeRemaining - dt, 0)
+
+  let gameStateUpdate = {timeRemaining: newTimeRemaining};
 
   return gameStateUpdate;
 
