@@ -73,7 +73,7 @@ export function renderInfo(gameState)
   if (gameState.acquiredTreasures?.length !== priorGameState.acquiredTreasures?.length)
   {
     document.querySelector("#collected-gems-display").innerHTML =
-      gameState.acquiredTreasures.map(e => "<li>" + e + "</li>");
+      gameState.acquiredTreasures.map(e => "<li>" + e + "</li>").join("");
   }
 }
 

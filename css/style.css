@@ -22,6 +22,14 @@ body {
   font-size: 1em;
 }
 
+#collected-gems-display {
+  list-style-image: url('../img/treasure-list-item.png');
+}
+
+#collected-gems-display li {
+  margin: 1em 0 0 0;
+}
+
 #roomtitle {
   font-size: 2em;
   position: absolute;
