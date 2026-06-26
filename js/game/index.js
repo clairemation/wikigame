@@ -14,6 +14,9 @@ let animationFrame;
 let lastTime = Date.now();
 let elapsedTime = 0;
 
+const urlParams = new URLSearchParams(window.location.search);
+const mode = urlParams.get('mode') || "asdf";
+
 document.querySelector("#restart-button").addEventListener("click", () => {
   viewConstants.modalParent.classList.add("hidden");
   restart();
@@ -24,7 +27,17 @@ restart();
 async function restart()
 {
   cancelAnimationFrame(animationFrame);
-  const randomTitle = await getRandomArticleName();
+
+  let randomTitle;
+
+  if (mode === "curated")
+  {
+    randomTitle = getRandomArticleNameFromList(); //getRandomArticleName();
+  }
+  else
+  {
+    randomTitle = await getRandomArticleName();
+  }
 
   const gameStateProperties = {
     timeRemaining: 2 * 60000, //2 minutes
@@ -102,6 +115,25 @@ function stopGame(gameState, eventText)
   document.querySelector("#modal h1").innerHTML = eventText
   viewConstants.modalParent.classList.remove("hidden");
   viewConstants.treasureListParent.innerHTML = `${gameState.acquiredTreasures.map(e => "<li>" + e + "</li>").join("")}`
+}
+
+function getRandomArticleNameFromList()
+{
+  let list = [
+    "Geneva",
+    "Landed gentry",
+    "Suffrage",
+    "Auxiliary verb",
+    "Malware",
+    "mathematics",
+    "Mathematician",
+    "University of Iceland",
+    "Ancient Carthage",
+    "Africa"
+  ]
+
+  let index = Math.floor(Math.random() * (list.length - 1));
+  return list[index];
 }
 
 export default function main() {}
