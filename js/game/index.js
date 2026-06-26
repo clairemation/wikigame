@@ -24,7 +24,7 @@ restart();
 async function restart()
 {
   cancelAnimationFrame(animationFrame);
-  const randomTitle = "humbucker"; //await getRandomArticleName();
+  const randomTitle = await getRandomArticleName();
 
   const gameStateProperties = {
     timeRemaining: 2 * 60000, //2 minutes

@@ -21,6 +21,9 @@ export default function processMouseInput(gameState)
       } else if (type === "entrance") {
         mouseUpdates.renderedInfo = gameState.entranceName;
       }
+      else {
+        mouseUpdates.renderedInfo = "Mouse over a doorway or gem to see more info"
+      }
     }
   }
 

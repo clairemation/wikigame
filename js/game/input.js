@@ -19,8 +19,8 @@ export function getMouseStatus()
 // {
   addEventListener("keydown", onKeyDown);
   addEventListener("keyup", onKeyUp);
-  addEventListener("mousedown", processMouseClick);
-  addEventListener("mouseup", processMouseUp);
+  addEventListener("mousemove", processMouseClick);
+  // addEventListener("mouseup", processMouseUp);
 // }
 
 function stop()
