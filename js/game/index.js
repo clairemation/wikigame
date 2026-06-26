@@ -16,7 +16,7 @@ let elapsedTime = 0;
 
 document.querySelector("#restart-button").addEventListener("click", () => {
   viewConstants.modalParent.classList.add("hidden");
-  restart()
+  restart();
 })
 
 restart();
@@ -50,8 +50,7 @@ async function loop(gameState)
 {
   if (gameState.timeRemaining <= 0)
   {
-    viewConstants.modalParent.classList.remove("hidden");
-    viewConstants.treasureListParent.innerHTML = `${gameState.acquiredTreasures.map(e => "<li>" + e + "</li>").join("")}`
+    stopGame(gameState, "Time's up!");
     return;
   }
 
@@ -80,10 +79,7 @@ async function loop(gameState)
   catch (error)
   {
     console.log(error);
-    viewConstants.modalParent.classList.remove("hidden");
-    viewConstants.treasureListParent.innerHTML = `
-      ${gameState.acquiredTreasures.map(e => "<li>" + e + "</li>")}
-    `
+    stopGame(gameState, "Red link!");
   }
 }
 
@@ -99,6 +95,13 @@ function updateTime(gameState)
 
   return gameStateUpdate;
 
+}
+
+function stopGame(gameState, eventText)
+{
+  document.querySelector("#modal h1").innerHTML = eventText
+  viewConstants.modalParent.classList.remove("hidden");
+  viewConstants.treasureListParent.innerHTML = `${gameState.acquiredTreasures.map(e => "<li>" + e + "</li>").join("")}`
 }
 
 export default function main() {}
