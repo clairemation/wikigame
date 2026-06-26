@@ -10,7 +10,7 @@ body {
   display: flex;
 }
 
-#collectedinfo {
+#collectedinfo, #modal {
   background: #fff;
   font-size: initial;
   margin: 10px;
@@ -22,11 +22,11 @@ body {
   font-size: 1em;
 }
 
-#collected-gems-display {
+#collected-gems-display, #modal ul {
   list-style-image: url('../img/treasure-list-item.png');
 }
 
-#collected-gems-display li {
+#collected-gems-display li, #modal li {
   margin: 1em 0 0 0;
 }
 
@@ -76,10 +76,6 @@ canvas {
   border-radius: 3px;
   z-index: 3;
   text-align: center;
-}
-
-#modal ul {
-  list-style-position: outside;
 }
 
 #modal button {

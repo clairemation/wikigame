@@ -14,12 +14,16 @@ let animationFrame;
 let lastTime = Date.now();
 let elapsedTime = 0;
 
-const shouldPopulateTreasures = gameState => !gameState.acquiredTreasures.find(entry => entry.room === title)
+document.querySelector("#restart-button").addEventListener("click", () => {
+  viewConstants.modalParent.classList.add("hidden");
+  restart()
+})
 
-start();
+restart();
 
-async function start()
+async function restart()
 {
+  cancelAnimationFrame(animationFrame);
   const randomTitle = "humbucker"; //await getRandomArticleName();
 
   const gameStateProperties = {
@@ -46,6 +50,8 @@ async function loop(gameState)
 {
   if (gameState.timeRemaining <= 0)
   {
+    viewConstants.modalParent.classList.remove("hidden");
+    viewConstants.treasureListParent.innerHTML = `${gameState.acquiredTreasures.map(e => "<li>" + e + "</li>").join("")}`
     return;
   }
 
