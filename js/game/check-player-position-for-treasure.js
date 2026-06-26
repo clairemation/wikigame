@@ -5,7 +5,7 @@ export default function checkPlayerPositionForTreasure(gameState) {
     treasureUpdates.score = gameState.score + 1;
     treasureUpdates.acquiredTreasures = [...gameState.acquiredTreasures, `${gameState.title}: ${treasureAcquired}`]
 
-    //todo: this is supposed to be immutable
+    //todo: maze state is supposed to be immutable
     gameState.maze[Math.floor(gameState.playerGridX + 0.5)][Math.floor(gameState.playerGridY + 0.5)].type = "space";
 
     return treasureUpdates;

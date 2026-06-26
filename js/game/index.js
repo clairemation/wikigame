@@ -17,7 +17,7 @@ start();
 
 async function start()
 {
-  const randomTitle = await getRandomArticleName();
+  const randomTitle = "humbucker"; //await getRandomArticleName();
 
   const gameStateProperties = {
     acquiredTreasures: [],
@@ -43,7 +43,7 @@ async function loop(gameState)
   try {
     const mouseUpdates = processMouseInput(gameState);
     const keyUpdates = processKeyInput(gameState);
-    const positionUpdates = checkPlayerPositionForTreasure(gameState)
+    const positionUpdates = checkPlayerPositionForTreasure(gameState) //TODO: combine position checks
       || await checkPlayerPositionForExit(gameState)
       || await checkPlayerPositionForEntrance(gameState);
 
@@ -62,6 +62,7 @@ async function loop(gameState)
   }
   catch (error)
   {
+    console.log(error);
     viewConstants.modalParent.classList.remove("hidden");
     viewConstants.treasureListParent.innerHTML = `
       ${gameState.acquiredTreasures.map(e => "<li>" + e + "</li>")}

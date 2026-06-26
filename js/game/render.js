@@ -69,6 +69,12 @@ export function renderInfo(gameState)
   {
     viewConstants.scoreParent.innerText = gameState.score;
   }
+
+  if (gameState.acquiredTreasures?.length !== priorGameState.acquiredTreasures?.length)
+  {
+    document.querySelector("#collected-gems-display").innerHTML =
+      gameState.acquiredTreasures.map(e => "<li>" + e + "</li>");
+  }
 }
 
 export function windowPosToGridPos(windowPosX, windowPosY)
