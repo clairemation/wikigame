@@ -23,7 +23,7 @@ const images = {
 }
 
 loadAllImages();
-setInterval(flipFrameNumber, 250);
+setInterval(flipFrameNumber, 250); //TODO: base on game state dt?
 
 async function loadAllImages()
 {
@@ -57,6 +57,8 @@ export function render(gameState)
 
   renderInfo(gameState);
 
+  renderTime(gameState.timeRemaining);
+
   priorGameState = gameState;
 }
 
@@ -65,10 +67,10 @@ export function renderInfo(gameState)
   if (gameState.renderedInfo && gameState.renderedInfo !== priorGameState.renderedInfo)
     viewConstants.linkInfoParent.innerText = gameState.renderedInfo;
 
-  if (gameState.score !== priorGameState.score)
-  {
-    viewConstants.scoreParent.innerText = gameState.score;
-  }
+  // if (gameState.score !== priorGameState.score)
+  // {
+  //   viewConstants.scoreParent.innerText = gameState.score;
+  // }
 
   if (gameState.acquiredTreasures?.length !== priorGameState.acquiredTreasures?.length)
   {
@@ -118,6 +120,13 @@ function renderPlayerCell(x, y, color)
   {
     viewConstants.ctx.drawImage(images.chara2, 100, 0, -100, 100, x * CELL_WIDTH, y * CELL_WIDTH, CELL_WIDTH, CELL_HEIGHT);
   }
+}
+
+function renderTime(timeRemaining)
+{
+  let minutes = Math.floor(timeRemaining / 60000)
+  let seconds = Math.floor((timeRemaining % 60000) / 1000)
+  document.querySelector("#time-remaining").innerHTML = `${minutes}:${seconds}`;
 }
 
 function flipFrameNumber()

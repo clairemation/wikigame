@@ -10,6 +10,8 @@ import getRandomArticleName from "./helpers/wiki";
 import {viewConstants} from "./view-constants";
 
 let animationFrame;
+let lastTime = Date.now();
+let elapsedTime = 0;
 
 const shouldPopulateTreasures = gameState => !gameState.acquiredTreasures.find(entry => entry.room === title)
 
@@ -20,6 +22,7 @@ async function start()
   const randomTitle = "humbucker"; //await getRandomArticleName();
 
   const gameStateProperties = {
+    timeRemaining: 2 * 60000, //2 minutes
     acquiredTreasures: [],
     playerIsStillEntering: false,
     entranceName: randomTitle,
@@ -41,6 +44,7 @@ async function start()
 async function loop(gameState)
 {
   try {
+    const timeUpdates = updateTime(gameState);
     const mouseUpdates = processMouseInput(gameState);
     const keyUpdates = processKeyInput(gameState);
     const positionUpdates = checkPlayerPositionForTreasure(gameState) //TODO: combine position checks
@@ -49,6 +53,7 @@ async function loop(gameState)
 
     const gameStateUpdates =
       {
+        ...timeUpdates,
         ...mouseUpdates,
         ...keyUpdates,
         ...positionUpdates
@@ -68,6 +73,18 @@ async function loop(gameState)
       ${gameState.acquiredTreasures.map(e => "<li>" + e + "</li>")}
     `
   }
+}
+
+function updateTime(gameState)
+{
+  let currentTime = Date.now();
+  let dt = currentTime - lastTime;
+  lastTime = currentTime;
+
+  let gameStateUpdate = {timeRemaining: gameState.timeRemaining - dt};
+
+  return gameStateUpdate;
+
 }
 
 export default function main() {}

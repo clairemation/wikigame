@@ -47,11 +47,12 @@ canvas {
   display: flex;
 }
 
-#score {
+#time-remaining {
   position: absolute;
   top: 0;
-  left: 750px;
+  left: 725px;
   color: #111;
+  font-size: 2em;
 }
 
 #modalbg {
