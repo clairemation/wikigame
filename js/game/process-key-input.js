@@ -11,10 +11,10 @@ export default function processKeyInput(gameState)
 
   let playerDirectionX = 0, playerDirectionY = 0;
 
-  if (getKeyStatus('w')) playerDirectionY--;
-  if (getKeyStatus('a')) playerDirectionX--;
-  if (getKeyStatus('s')) playerDirectionY++;
-  if (getKeyStatus('d')) playerDirectionX++;
+  if (getKeyStatus('w') || getKeyStatus('ArrowUp')) playerDirectionY--;
+  if (getKeyStatus('a') || getKeyStatus('ArrowLeft')) playerDirectionX--;
+  if (getKeyStatus('s') || getKeyStatus('ArrowDown')) playerDirectionY++;
+  if (getKeyStatus('d') || getKeyStatus('ArrowRight')) playerDirectionX++;
 
   // so hacky lol
   if (playerDirectionX !== 0 && playerDirectionY !== 0)

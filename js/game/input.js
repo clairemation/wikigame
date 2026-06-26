@@ -29,11 +29,12 @@ function stop()
   removeEventListener("keydown", onKeyDown);
   removeEventListener("keyup", onKeyUp);
   removeEventListener("mousedown", processMouseClick);
-  removeEventListener("mouseup", processMouseUp);
+  // removeEventListener("mouseup", processMouseUp);
 }
 
 function onKeyDown(e)
 {
+  console.log(e.key)
   keyStatus[e.key] = true
 }
 
